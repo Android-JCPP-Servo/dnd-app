@@ -1,3 +1,8 @@
+:root {
+    --byui-test-overlay-bg-color: #f96e46;
+    --byui-test-overlay-text-color: #ffffff;
+}
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }

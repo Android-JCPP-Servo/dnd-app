@@ -1,0 +1,39 @@
+@implements IDisposable
+
+@if (StorageStatus.FailureMessage is not null)
+{
+    <div class="dnd-storage-warning">
+        <span>@StorageStatus.FailureMessage</span>
+        <button type="button" class="dnd-storage-warning-dismiss" @onclick="Dismiss">Dismiss</button>
+    </div>
+}
+
+@code {
+    [Inject] private IStorageStatusService StorageStatus { get; set; } = default!;
+
+    /// <summary>
+    /// Subscribes to storage-failure notifications so the banner appears without a page reload.
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        StorageStatus.StatusChanged += HandleStatusChanged;
+    }
+
+    private void HandleStatusChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void Dismiss()
+    {
+        StorageStatus.ClearFailure();
+    }
+
+    /// <summary>
+    /// Unsubscribes from the singleton's event to avoid leaking this component instance.
+    /// </summary>
+    public void Dispose()
+    {
+        StorageStatus.StatusChanged -= HandleStatusChanged;
+    }
+}
