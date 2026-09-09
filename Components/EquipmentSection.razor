@@ -1,0 +1,104 @@
+<div class="dnd-coin-purse">
+    <label class="dnd-coin-field">
+        <span class="dnd-coin-label">CP</span>
+        <div class="dnd-coin-stepper">
+            <button type="button" class="dnd-coin-btn" aria-label="Decrease copper by 1"
+                    @onclick="() => AdjustCoin(() => Character.Coins.Copper, v => Character.Coins.Copper = v, -1)">&minus;</button>
+            <input type="number" inputmode="numeric" class="dnd-coin-value" value="@Character.Coins.Copper"
+                   @oninput="e => SetCoinValue(v => Character.Coins.Copper = v, e)" />
+            <button type="button" class="dnd-coin-btn" aria-label="Increase copper by 1"
+                    @onclick="() => AdjustCoin(() => Character.Coins.Copper, v => Character.Coins.Copper = v, 1)">+</button>
+        </div>
+    </label>
+
+    <label class="dnd-coin-field">
+        <span class="dnd-coin-label">SP</span>
+        <div class="dnd-coin-stepper">
+            <button type="button" class="dnd-coin-btn" aria-label="Decrease silver by 1"
+                    @onclick="() => AdjustCoin(() => Character.Coins.Silver, v => Character.Coins.Silver = v, -1)">&minus;</button>
+            <input type="number" inputmode="numeric" class="dnd-coin-value" value="@Character.Coins.Silver"
+                   @oninput="e => SetCoinValue(v => Character.Coins.Silver = v, e)" />
+            <button type="button" class="dnd-coin-btn" aria-label="Increase silver by 1"
+                    @onclick="() => AdjustCoin(() => Character.Coins.Silver, v => Character.Coins.Silver = v, 1)">+</button>
+        </div>
+    </label>
+
+    <label class="dnd-coin-field">
+        <span class="dnd-coin-label">EP</span>
+        <div class="dnd-coin-stepper">
+            <button type="button" class="dnd-coin-btn" aria-label="Decrease electrum by 1"
+                    @onclick="() => AdjustCoin(() => Character.Coins.Electrum, v => Character.Coins.Electrum = v, -1)">&minus;</button>
+            <input type="number" inputmode="numeric" class="dnd-coin-value" value="@Character.Coins.Electrum"
+                   @oninput="e => SetCoinValue(v => Character.Coins.Electrum = v, e)" />
+            <button type="button" class="dnd-coin-btn" aria-label="Increase electrum by 1"
+                    @onclick="() => AdjustCoin(() => Character.Coins.Electrum, v => Character.Coins.Electrum = v, 1)">+</button>
+        </div>
+    </label>
+
+    <label class="dnd-coin-field">
+        <span class="dnd-coin-label">GP</span>
+        <div class="dnd-coin-stepper">
+            <button type="button" class="dnd-coin-btn" aria-label="Decrease gold by 1"
+                    @onclick="() => AdjustCoin(() => Character.Coins.Gold, v => Character.Coins.Gold = v, -1)">&minus;</button>
+            <input type="number" inputmode="numeric" class="dnd-coin-value" value="@Character.Coins.Gold"
+                   @oninput="e => SetCoinValue(v => Character.Coins.Gold = v, e)" />
+            <button type="button" class="dnd-coin-btn" aria-label="Increase gold by 1"
+                    @onclick="() => AdjustCoin(() => Character.Coins.Gold, v => Character.Coins.Gold = v, 1)">+</button>
+        </div>
+    </label>
+
+    <label class="dnd-coin-field">
+        <span class="dnd-coin-label">PP</span>
+        <div class="dnd-coin-stepper">
+            <button type="button" class="dnd-coin-btn" aria-label="Decrease platinum by 1"
+                    @onclick="() => AdjustCoin(() => Character.Coins.Platinum, v => Character.Coins.Platinum = v, -1)">&minus;</button>
+            <input type="number" inputmode="numeric" class="dnd-coin-value" value="@Character.Coins.Platinum"
+                   @oninput="e => SetCoinValue(v => Character.Coins.Platinum = v, e)" />
+            <button type="button" class="dnd-coin-btn" aria-label="Increase platinum by 1"
+                    @onclick="() => AdjustCoin(() => Character.Coins.Platinum, v => Character.Coins.Platinum = v, 1)">+</button>
+        </div>
+    </label>
+</div>
+
+<RepeatingSection TRow="TextEntry"
+                  Rows="Character.Equipment"
+                  RowFactory="() => new TextEntry()"
+                  AddLabel="Add Item"
+                  EmptyText="No equipment yet."
+                  OnChanged="HandleChanged">
+    <RowTemplate Context="item">
+        <input type="text" class="dnd-equipment-input" value="@item.Text"
+               aria-label="Equipment item" @oninput="e => SetItemText(item, e)" />
+    </RowTemplate>
+</RepeatingSection>
+
+@code {
+    [Parameter, EditorRequired] public CharacterSheet Character { get; set; } = default!;
+
+    [Inject] private ICharacterAutosaveService Autosave { get; set; } = default!;
+
+    private void SetItemText(TextEntry item, ChangeEventArgs e)
+    {
+        item.Text = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleChanged()
+    {
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void AdjustCoin(Func<int> getValue, Action<int> setValue, int delta)
+    {
+        var next = Math.Max(0, getValue() + delta);
+        setValue(next);
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void SetCoinValue(Action<int> setValue, ChangeEventArgs e)
+    {
+        var parsed = int.TryParse(e.Value?.ToString(), out var value) ? value : 0;
+        setValue(Math.Max(0, parsed));
+        Autosave.NotifyChanged(Character);
+    }
+}

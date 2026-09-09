@@ -1,0 +1,34 @@
+<RepeatingSection TRow="TextEntry"
+                  Rows="Character.OtherProficienciesAndLanguages"
+                  RowFactory="() => new TextEntry()"
+                  AddLabel="Add Proficiency or Language"
+                  EmptyText="No other proficiencies or languages yet."
+                  OnChanged="HandleChanged">
+    <RowTemplate Context="entry">
+        <input type="text" class="dnd-proficiency-input" value="@entry.Text"
+               aria-label="Proficiency or language" @oninput="e => SetEntryText(entry, e)" />
+    </RowTemplate>
+</RepeatingSection>
+
+@code {
+    [Parameter, EditorRequired] public CharacterSheet Character { get; set; } = default!;
+
+    [Inject] private ICharacterAutosaveService Autosave { get; set; } = default!;
+
+    /// <summary>
+    /// Updates the free-text content of a single row and queues an autosave.
+    /// </summary>
+    private void SetEntryText(TextEntry entry, ChangeEventArgs e)
+    {
+        entry.Text = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    /// <summary>
+    /// Fired when RepeatingSection adds or removes a row, so structural changes autosave too.
+    /// </summary>
+    private void HandleChanged()
+    {
+        Autosave.NotifyChanged(Character);
+    }
+}
