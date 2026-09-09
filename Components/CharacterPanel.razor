@@ -1,0 +1,294 @@
+@implements IDisposable
+
+<button type="button"
+        class="dnd-panel-toggle"
+        aria-expanded="@(_isOpen ? "true" : "false")"
+        aria-controls="dnd-panel-list-region"
+        @onclick="ToggleOpen">
+    <span aria-hidden="true">&#9776;</span>
+    <span>Characters</span>
+</button>
+
+<aside id="dnd-panel-list-region" class="dnd-panel @(_isOpen ? "dnd-panel-open" : string.Empty)">
+    <div class="dnd-panel-header">
+        <h2 class="dnd-panel-title">Characters</h2>
+        <button type="button" class="dnd-panel-close" aria-label="Close character list" @onclick="Close">&times;</button>
+    </div>
+
+    <button type="button" class="dnd-panel-new" @onclick="HandleNewCharacterAsync">New Character</button>
+
+    @if (_characters.Count == 0)
+    {
+        <p class="dnd-panel-empty">No characters yet.</p>
+    }
+    else
+    {
+        <ul class="dnd-panel-list">
+            @foreach (var summary in _characters)
+            {
+                <li class="dnd-panel-action-row">
+                    @if (_renamingId == summary.Id)
+                    {
+                        <input class="dnd-panel-item dnd-panel-action-rename-input"
+                               value="@_renameValue"
+                               @oninput="HandleRenameInput"
+                               @onkeydown="HandleRenameKeyDownAsync"
+                               @onblur="CommitRenameAsync" />
+                    }
+                    else
+                    {
+                        <button type="button"
+                                class="dnd-panel-item @(summary.Id == SelectedCharacterId ? "dnd-panel-item-active" : string.Empty)"
+                                @onclick="() => HandleSelectAsync(summary)">
+                            @DisplayNameOf(summary)
+                        </button>
+                    }
+
+                    <div class="dnd-panel-action-group">
+                        <button type="button"
+                                class="dnd-panel-action-rename"
+                                aria-label="Rename @DisplayNameOf(summary)"
+                                @onclick="() => StartRename(summary)">
+                            <span aria-hidden="true">&#9998;</span>
+                        </button>
+                        <button type="button"
+                                class="dnd-panel-action-duplicate"
+                                aria-label="Duplicate @DisplayNameOf(summary)"
+                                @onclick="() => HandleDuplicateAsync(summary)">
+                            <span aria-hidden="true">&#10064;</span>
+                        </button>
+                        <button type="button"
+                                class="dnd-panel-action-delete"
+                                aria-label="Delete @DisplayNameOf(summary)"
+                                @onclick="() => RequestDelete(summary)">
+                            <span aria-hidden="true">&#128465;</span>
+                        </button>
+                    </div>
+                </li>
+            }
+        </ul>
+    }
+</aside>
+
+@if (_pendingDeleteId is not null)
+{
+    <DeleteCharacterConfirmation CharacterName="_pendingDeleteName"
+                                  OnConfirmed="HandleDeleteConfirmedAsync"
+                                  OnCancelled="HandleDeleteCancelled" />
+}
+
+@code {
+    [Parameter] public Guid? SelectedCharacterId { get; set; }
+
+    [Parameter] public EventCallback<CharacterSheet> OnCharacterSelected { get; set; }
+
+    [Parameter] public EventCallback OnCharacterDeleted { get; set; }
+
+    [Inject] private ICharacterStore Store { get; set; } = default!;
+
+    [Inject] private ICharacterAutosaveService Autosave { get; set; } = default!;
+
+    [Inject] private ICharacterDuplicator Duplicator { get; set; } = default!;
+
+    private IReadOnlyList<CharacterSummary> _characters = Array.Empty<CharacterSummary>();
+
+    private bool _isOpen;
+
+    private Guid? _renamingId;
+
+    private string _renameValue = string.Empty;
+
+    private Guid? _pendingDeleteId;
+
+    private string _pendingDeleteName = string.Empty;
+
+    /// <summary>
+    /// Loads the initial character list so the panel is populated on first render.
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshListAsync();
+    }
+
+    private async Task RefreshListAsync()
+    {
+        _characters = await Store.ListAllAsync();
+    }
+
+    private static string DisplayNameOf(CharacterSummary summary)
+        => summary.DisplayName is { Length: > 0 } name ? name : "Unnamed character";
+
+    /// <summary>
+    /// Creates a brand-new, fully blank character record, persists it immediately so it can be
+    /// selected again later, refreshes the list, and hands the new sheet to the host as a
+    /// whole-object replacement.
+    /// </summary>
+    private async Task HandleNewCharacterAsync()
+    {
+        var sheet = new CharacterSheet();
+
+        await Store.SaveAsync(sheet);
+        await RefreshListAsync();
+        await OnCharacterSelected.InvokeAsync(sheet);
+
+        _isOpen = false;
+    }
+
+    /// <summary>
+    /// Flushes any pending autosave for the currently displayed character before loading the
+    /// newly selected one, then hands the host a whole, freshly loaded sheet. A null result means
+    /// the read failed or the record is gone, in which case the currently displayed sheet is left
+    /// untouched rather than being blanked out.
+    /// </summary>
+    private async Task HandleSelectAsync(CharacterSummary summary)
+    {
+        await Autosave.FlushAsync();
+
+        var sheet = await Store.GetAsync(summary.Id);
+        if (sheet is not null)
+        {
+            await OnCharacterSelected.InvokeAsync(sheet);
+        }
+
+        _isOpen = false;
+    }
+
+    private void StartRename(CharacterSummary summary)
+    {
+        _renamingId = summary.Id;
+        _renameValue = summary.DisplayName;
+    }
+
+    private void HandleRenameInput(ChangeEventArgs e)
+    {
+        _renameValue = e.Value?.ToString() ?? string.Empty;
+    }
+
+    private async Task HandleRenameKeyDownAsync(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await CommitRenameAsync();
+        }
+        else if (e.Key == "Escape")
+        {
+            CancelRename();
+        }
+    }
+
+    private void CancelRename()
+    {
+        _renamingId = null;
+        _renameValue = string.Empty;
+    }
+
+    /// <summary>
+    /// Commits the in-place rename, touching only <see cref="CharacterSheet.DisplayName"/> on the
+    /// loaded sheet. Flushes any pending autosave first so a rename of the currently displayed
+    /// character cannot be clobbered by, or clobber, a debounced field edit. If the renamed
+    /// character is currently displayed, hands the host the updated sheet so the sheet header
+    /// updates immediately.
+    /// </summary>
+    private async Task CommitRenameAsync()
+    {
+        if (_renamingId is not { } id)
+        {
+            return;
+        }
+
+        _renamingId = null;
+
+        await Autosave.FlushAsync();
+
+        var sheet = await Store.GetAsync(id);
+        if (sheet is null)
+        {
+            await RefreshListAsync();
+            return;
+        }
+
+        sheet.DisplayName = _renameValue.Trim();
+        await Store.SaveAsync(sheet);
+        await RefreshListAsync();
+
+        if (id == SelectedCharacterId)
+        {
+            await OnCharacterSelected.InvokeAsync(sheet);
+        }
+    }
+
+    /// <summary>
+    /// Duplicates a character into a fully independent copy, refreshes the list, and selects the
+    /// copy so the user lands on it. Flushes any pending autosave first so duplicating the
+    /// currently displayed character copies its latest edits, not a stale saved state.
+    /// </summary>
+    private async Task HandleDuplicateAsync(CharacterSummary summary)
+    {
+        await Autosave.FlushAsync();
+
+        var copy = await Duplicator.DuplicateAsync(summary.Id);
+        if (copy is null)
+        {
+            return;
+        }
+
+        await RefreshListAsync();
+        await OnCharacterSelected.InvokeAsync(copy);
+
+        _isOpen = false;
+    }
+
+    private void RequestDelete(CharacterSummary summary)
+    {
+        _pendingDeleteId = summary.Id;
+        _pendingDeleteName = summary.DisplayName;
+    }
+
+    /// <summary>
+    /// Cancelling leaves the character untouched: no store call is made at all.
+    /// </summary>
+    private void HandleDeleteCancelled()
+    {
+        _pendingDeleteId = null;
+        _pendingDeleteName = string.Empty;
+    }
+
+    /// <summary>
+    /// Flushes any pending autosave before deleting so a debounced write in flight for the
+    /// character being deleted cannot resurrect it via IndexedDB's upsert. Only asks the host to
+    /// fall back to another character when the deleted one was the currently displayed one.
+    /// </summary>
+    private async Task HandleDeleteConfirmedAsync()
+    {
+        if (_pendingDeleteId is not { } id)
+        {
+            return;
+        }
+
+        await Autosave.FlushAsync();
+        await Store.DeleteAsync(id);
+        await RefreshListAsync();
+
+        _pendingDeleteId = null;
+        _pendingDeleteName = string.Empty;
+
+        if (id == SelectedCharacterId)
+        {
+            await OnCharacterDeleted.InvokeAsync();
+        }
+    }
+
+    private void ToggleOpen()
+    {
+        _isOpen = !_isOpen;
+    }
+
+    private void Close()
+    {
+        _isOpen = false;
+    }
+
+    public void Dispose()
+    {
+    }
+}
