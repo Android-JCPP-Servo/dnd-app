@@ -90,6 +90,13 @@
                    value="@Character.HitPoints.HitDiceType"
                    @oninput="HandleHitDiceTypeInput" />
         </label>
+
+        <label class="dnd-combat-field">
+            <span class="dnd-combat-label">Hit Dice Total</span>
+            <input type="number" inputmode="numeric" class="dnd-combat-input"
+                   value="@Character.HitPoints.HitDiceTotal"
+                   @oninput="HandleHitDiceTotalInput" />
+        </label>
     </div>
 
     <div class="dnd-combat-deathsaves">
@@ -123,7 +130,20 @@
             </div>
         </div>
     </div>
+
+    <div class="dnd-combat-longrest">
+        @if (_longRestMessage is not null)
+        {
+            <p class="dnd-combat-longrest-message">@_longRestMessage</p>
+        }
+        <button type="button" class="dnd-combat-longrest-btn" @onclick="RequestLongRest">Long Rest</button>
+    </div>
 </div>
+
+@if (_isLongRestPending)
+{
+    <LongRestConfirmation OnConfirmed="HandleLongRestConfirmed" OnCancelled="HandleLongRestCancelled" />
+}
 
 @code {
     [Parameter, EditorRequired] public CharacterSheet Character { get; set; } = default!;
@@ -133,6 +153,10 @@
     private string _amountEntry = string.Empty;
 
     private int _amountEntryKey;
+
+    private bool _isLongRestPending;
+
+    private string? _longRestMessage;
 
     private void HandleArmorClassInput(ChangeEventArgs e)
     {
@@ -161,6 +185,13 @@
     private void HandleHitDiceTypeInput(ChangeEventArgs e)
     {
         Character.HitPoints.HitDiceType = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleHitDiceTotalInput(ChangeEventArgs e)
+    {
+        var parsed = int.TryParse(e.Value?.ToString(), out var value) ? value : 0;
+        Character.HitPoints.HitDiceTotal = Math.Max(0, parsed);
         Autosave.NotifyChanged(Character);
     }
 
@@ -244,5 +275,51 @@
         }
 
         Autosave.NotifyChanged(Character);
+    }
+
+    /// <summary>
+    /// Opens the Long Rest confirmation dialog. Bails out before prompting — without mutating
+    /// anything — when Hit Point Maximum has not been set, since a Long Rest cannot correctly
+    /// restore Current HP in that case. Clears any previous message on a successful open.
+    /// </summary>
+    private void RequestLongRest()
+    {
+        if (Character.HitPoints.Maximum <= 0)
+        {
+            _longRestMessage = "Enter a Hit Point Maximum before taking a Long Rest.";
+            return;
+        }
+
+        _longRestMessage = null;
+        _isLongRestPending = true;
+    }
+
+    /// <summary>
+    /// Applies exactly the five Long Rest resets, reading current maximum fields on the sheet
+    /// rather than a frozen snapshot, then autosaves once. Never touches any entered maximum,
+    /// bonus, or descriptive field.
+    /// </summary>
+    private void HandleLongRestConfirmed()
+    {
+        Character.HitPoints.Current = Character.HitPoints.Maximum;
+        Character.HitPoints.Temporary = 0;
+        Character.HitPoints.HitDiceRemaining = Character.HitPoints.HitDiceTotal;
+        Character.DeathSaves.Successes = 0;
+        Character.DeathSaves.Failures = 0;
+        foreach (var slot in Character.Spellcasting.SlotLevels)
+        {
+            slot.Expended = 0;
+        }
+
+        _isLongRestPending = false;
+        Autosave.NotifyChanged(Character);
+    }
+
+    /// <summary>
+    /// Cancelling leaves the character untouched: no field assignment and no store call.
+    /// </summary>
+    private void HandleLongRestCancelled()
+    {
+        _isLongRestPending = false;
     }
 }

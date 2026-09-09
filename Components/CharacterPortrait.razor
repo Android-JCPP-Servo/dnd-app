@@ -1,0 +1,194 @@
+<div class="dnd-portrait">
+    @if (_dataUrl is not null)
+    {
+        <button type="button" class="dnd-portrait-thumb-button" @onclick="OpenViewer" aria-label="View portrait full-screen">
+            <img class="dnd-portrait-thumb" src="@_dataUrl" alt="Character portrait" />
+        </button>
+    }
+    else
+    {
+        <p class="dnd-portrait-empty">No portrait set.</p>
+    }
+
+    <div class="dnd-portrait-controls">
+        <label class="dnd-portrait-upload">
+            @(_dataUrl is null ? "Add portrait" : "Replace portrait")
+            <InputFile accept="image/*" OnChange="HandlePortraitSelectedAsync" />
+        </label>
+
+        @if (_dataUrl is not null)
+        {
+            <button type="button" class="dnd-portrait-remove" @onclick="HandleRemoveAsync">Remove portrait</button>
+        }
+    </div>
+
+    @if (_errorMessage is not null)
+    {
+        <p class="dnd-portrait-error">@_errorMessage</p>
+    }
+</div>
+
+@if (_isViewerOpen && _dataUrl is not null)
+{
+    <div class="dnd-portrait-viewer-backdrop"
+         tabindex="0"
+         @ref="_viewerElement"
+         @onclick="CloseViewer"
+         @onkeydown="HandleViewerKeyDown">
+        <div class="dnd-portrait-viewer-content" @onclick:stopPropagation="true">
+            <button type="button"
+                    class="dnd-portrait-viewer-close"
+                    aria-label="Close portrait"
+                    @onclick:stopPropagation="true"
+                    @onclick="CloseViewer">
+                &times;
+            </button>
+            <img class="dnd-portrait-viewer-image" src="@_dataUrl" alt="Character portrait, full screen" />
+        </div>
+    </div>
+}
+
+@code {
+    // Storage budget: 512px JPEG keeps a dozen portraits well within browser storage quota.
+    // Base64 inflation (~33%, see IndexedDbCharacterStore.SavePortraitAsync) still lands
+    // roughly 1-2 MB total for twelve characters. Do not raise beyond 1024px or switch to PNG.
+    private const int MaxPortraitDimensionPx = 512;
+    private const string PortraitContentType = "image/jpeg";
+    private const long MaxResizedFileBytes = 4 * 1024 * 1024;
+
+    [Parameter, EditorRequired] public CharacterSheet Character { get; set; } = default!;
+
+    [Inject] private ICharacterStore Store { get; set; } = default!;
+
+    [Inject] private ICharacterAutosaveService Autosave { get; set; } = default!;
+
+    private string? _dataUrl;
+    private Guid _loadedForCharacterId;
+    private bool _isViewerOpen;
+    private bool _shouldFocusViewer;
+    private string? _errorMessage;
+    private ElementReference _viewerElement;
+
+    /// <summary>
+    /// Reloads the portrait only when the displayed character actually changes identity
+    /// (CONTRACT: CharacterSheetPage replaces <c>_character</c> wholesale on selection, so this
+    /// component's Character parameter changes identity without the component being recreated).
+    /// </summary>
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Character.Id != _loadedForCharacterId)
+        {
+            _loadedForCharacterId = Character.Id;
+            await LoadPortraitAsync();
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_shouldFocusViewer)
+        {
+            _shouldFocusViewer = false;
+            await _viewerElement.FocusAsync();
+        }
+    }
+
+    private async Task LoadPortraitAsync()
+    {
+        _dataUrl = null;
+
+        if (string.IsNullOrEmpty(Character.PortraitReference))
+        {
+            return;
+        }
+
+        var record = await Store.GetPortraitAsync(Character.PortraitReference);
+        _dataUrl = record is null
+            ? null
+            : $"data:{record.ContentType};base64,{Convert.ToBase64String(record.Bytes)}";
+    }
+
+    /// <summary>
+    /// Downscales the selected image in-browser (never transferring the original multi-MB file
+    /// into .NET), then mints a fresh portrait reference and only deletes the old blob after the
+    /// new one is safely written - so a mid-operation storage failure leaves a readable portrait
+    /// rather than a dangling reference. Re-selecting a file IS the replace flow.
+    /// </summary>
+    private async Task HandlePortraitSelectedAsync(InputFileChangeEventArgs e)
+    {
+        _errorMessage = null;
+
+        try
+        {
+            var resized = await e.File.RequestImageFileAsync(PortraitContentType, MaxPortraitDimensionPx, MaxPortraitDimensionPx);
+
+            await using var stream = resized.OpenReadStream(maxAllowedSize: MaxResizedFileBytes);
+            using var buffer = new MemoryStream();
+            await stream.CopyToAsync(buffer);
+            var bytes = buffer.ToArray();
+
+            var previousReference = Character.PortraitReference;
+            var newReference = Guid.NewGuid().ToString();
+
+            await Store.SavePortraitAsync(newReference, new PortraitRecord { ContentType = PortraitContentType, Bytes = bytes });
+            Character.PortraitReference = newReference;
+
+            if (!string.IsNullOrEmpty(previousReference))
+            {
+                await Store.DeletePortraitAsync(previousReference);
+            }
+
+            _dataUrl = $"data:{PortraitContentType};base64,{Convert.ToBase64String(bytes)}";
+            Autosave.NotifyChanged(Character);
+        }
+        catch (IOException)
+        {
+            _errorMessage = "That image is too large to use as a portrait. Try a different photo.";
+        }
+        catch (JSException)
+        {
+            _errorMessage = "That file could not be used as a portrait.";
+        }
+    }
+
+    /// <summary>
+    /// Nulls the reference and deletes the stored blob - deleting is what actually frees the
+    /// stored data; nulling the reference alone would leak it.
+    /// </summary>
+    private async Task HandleRemoveAsync()
+    {
+        var captured = Character.PortraitReference;
+        Character.PortraitReference = null;
+
+        if (!string.IsNullOrEmpty(captured))
+        {
+            await Store.DeletePortraitAsync(captured);
+        }
+
+        _dataUrl = null;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void OpenViewer()
+    {
+        if (_dataUrl is null)
+        {
+            return;
+        }
+
+        _isViewerOpen = true;
+        _shouldFocusViewer = true;
+    }
+
+    private void CloseViewer()
+    {
+        _isViewerOpen = false;
+    }
+
+    private void HandleViewerKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape")
+        {
+            CloseViewer();
+        }
+    }
+}

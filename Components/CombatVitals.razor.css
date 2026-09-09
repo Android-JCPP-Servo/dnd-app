@@ -125,6 +125,28 @@
     gap: 0.5rem;
 }
 
+.dnd-combat-longrest {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.dnd-combat-longrest-btn {
+    align-self: flex-start;
+    border: 0.0625rem solid #6b6b6b;
+    border-radius: 0.25rem;
+    box-sizing: border-box;
+    min-height: var(--dnd-control-min-h);
+    min-width: var(--dnd-control-min-w);
+    padding: 0 0.75rem;
+}
+
+.dnd-combat-longrest-message {
+    font-size: var(--dnd-control-font);
+    margin: 0;
+}
+
 .dnd-combat-deathsaves-row {
     align-items: center;
     display: flex;

@@ -1,0 +1,44 @@
+.dnd-ally-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.dnd-ally-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.dnd-ally-field-label {
+    font-size: var(--dnd-label-font);
+    font-weight: 600;
+}
+
+.dnd-ally-input,
+.dnd-ally-textarea {
+    border: 0.0625rem solid #d6d5d5;
+    border-radius: 0.25rem;
+    box-sizing: border-box;
+    font-size: var(--dnd-control-font);
+    padding: var(--dnd-control-pad-y) var(--dnd-control-pad-x);
+    width: 100%;
+}
+
+.dnd-ally-input {
+    min-height: var(--dnd-control-min-h);
+}
+
+.dnd-ally-textarea {
+    resize: vertical;
+}
+
+@media (min-width: 768px) {
+    .dnd-ally-row {
+        flex-direction: row;
+    }
+
+    .dnd-ally-field {
+        flex: 1 1 0;
+    }
+}

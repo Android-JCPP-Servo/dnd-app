@@ -1,0 +1,46 @@
+<RepeatingSection TRow="AllyEntry"
+                  Rows="Character.AlliesAndOrganizations"
+                  RowFactory="() => new AllyEntry()"
+                  AddLabel="Add Ally or Organization"
+                  EmptyText="No allies or organizations yet."
+                  OnChanged="HandleChanged">
+    <RowTemplate Context="entry">
+        <div class="dnd-ally-row">
+            <div class="dnd-ally-field">
+                <span class="dnd-ally-field-label">Name</span>
+                <input type="text" class="dnd-ally-input" value="@entry.Name"
+                       aria-label="Ally or organization name"
+                       @oninput="e => SetName(entry, e)" />
+            </div>
+            <div class="dnd-ally-field">
+                <span class="dnd-ally-field-label">Details</span>
+                <textarea class="dnd-ally-textarea" rows="3" value="@entry.Details"
+                          aria-label="Ally or organization details"
+                          @oninput="e => SetDetails(entry, e)"></textarea>
+            </div>
+        </div>
+    </RowTemplate>
+</RepeatingSection>
+
+@code {
+    [Parameter, EditorRequired] public CharacterSheet Character { get; set; } = default!;
+
+    [Inject] private ICharacterAutosaveService Autosave { get; set; } = default!;
+
+    private void SetName(AllyEntry entry, ChangeEventArgs e)
+    {
+        entry.Name = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void SetDetails(AllyEntry entry, ChangeEventArgs e)
+    {
+        entry.Details = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleChanged()
+    {
+        Autosave.NotifyChanged(Character);
+    }
+}

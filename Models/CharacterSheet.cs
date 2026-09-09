@@ -59,7 +59,7 @@ public sealed class CharacterSheet
 
     public List<TextEntry> OtherProficienciesAndLanguages { get; set; } = new();
 
-    public List<TextEntry> AlliesAndOrganizations { get; set; } = new();
+    public List<AllyEntry> AlliesAndOrganizations { get; set; } = new();
 
     public string FeaturesAndTraits { get; set; } = string.Empty;
 
