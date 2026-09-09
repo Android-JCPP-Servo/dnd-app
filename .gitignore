@@ -1,2 +1,7 @@
 # ForgeFlow local session state
 .forgeflow/
+
+# Standard .NET build output and IDE state
+[Bb]in/
+[Oo]bj/
+.vs/
