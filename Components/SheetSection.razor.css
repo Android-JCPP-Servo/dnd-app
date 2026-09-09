@@ -11,11 +11,11 @@
     border: 0;
     cursor: pointer;
     display: flex;
-    font-size: 1rem;
+    font-size: var(--dnd-control-font);
     font-weight: 600;
     justify-content: space-between;
-    min-height: 44px;
-    padding: 0.5rem 1rem;
+    min-height: var(--dnd-control-min-h);
+    padding: 0.25rem 0.625rem;
     text-align: left;
     width: 100%;
 }
@@ -25,13 +25,13 @@
 }
 
 .dnd-sheet-section-icon {
-    font-size: 1.1rem;
+    font-size: 1rem;
     line-height: 1;
     margin-left: 0.5rem;
 }
 
 .dnd-sheet-section-body {
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 0.625rem;
 }
 
 .dnd-sheet-section-body.is-collapsed {

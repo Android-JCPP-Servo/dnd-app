@@ -1,6 +1,28 @@
 :root {
     --byui-test-overlay-bg-color: #f96e46;
     --byui-test-overlay-text-color: #ffffff;
+
+    /* Sizing scale (ticket 214). Consumed by every .razor.css; ticket 215 consumes it too. */
+    --dnd-touch-min: 2.75rem;        /* 44px - accessibility floor, restored on touch below */
+    --dnd-control-min-h: 2rem;       /* was 44px - inputs, buttons, rows */
+    --dnd-control-min-w: 2rem;       /* was 44px - icon/square buttons */
+    --dnd-toggle-size: 1.25rem;      /* proficiency circles and death-save pips */
+    --dnd-control-pad-y: 0.25rem;
+    --dnd-control-pad-x: 0.5rem;
+    --dnd-control-font: 0.875rem;
+    --dnd-label-font: 0.7rem;
+}
+
+/* Accessibility: restore full 44px targets wherever the primary pointer is coarse (touch).
+   One block covers every component because all sizing flows through these tokens. */
+@media (pointer: coarse) {
+    :root {
+        --dnd-control-min-h: var(--dnd-touch-min);
+        --dnd-control-min-w: var(--dnd-touch-min);
+        --dnd-toggle-size: var(--dnd-touch-min);
+        --dnd-control-pad-y: 0.5rem;
+        --dnd-control-pad-x: 0.75rem;
+    }
 }
 
 html, body {

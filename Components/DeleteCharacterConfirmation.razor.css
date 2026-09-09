@@ -44,8 +44,8 @@
 .dnd-confirm-delete {
     border-radius: 0.25rem;
     cursor: pointer;
-    min-height: 44px;
-    padding: 0.5rem 0.75rem;
+    min-height: var(--dnd-control-min-h);
+    padding: var(--dnd-control-pad-y) var(--dnd-control-pad-x);
 }
 
 .dnd-confirm-cancel {
