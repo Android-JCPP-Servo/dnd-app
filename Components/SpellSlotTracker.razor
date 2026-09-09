@@ -1,0 +1,73 @@
+<div class="dnd-slot-tracker">
+    @foreach (var slot in Character.Spellcasting.SlotLevels)
+    {
+        <div class="dnd-slot-row @(slot.Total == 0 ? "is-empty" : "")">
+            <span class="dnd-slot-label">Level @slot.Level</span>
+
+            <label class="dnd-slot-total-field">
+                <span class="dnd-slot-total-label">Total</span>
+                <input type="number" inputmode="numeric" class="dnd-slot-total-input"
+                       aria-label="Level @slot.Level slot total"
+                       value="@slot.Total"
+                       @oninput="e => HandleTotalInput(slot, e)" />
+            </label>
+
+            <div class="dnd-slot-pips">
+                @for (var i = 1; i <= slot.Total; i++)
+                {
+                    var index = i;
+                    <button type="button"
+                            class="dnd-slot-pip @(index <= slot.Expended ? "is-marked" : "")"
+                            aria-pressed="@(index <= slot.Expended ? "true" : "false")"
+                            aria-label="Level @slot.Level slot @index"
+                            @onclick="() => TogglePip(slot, index)" />
+                }
+            </div>
+
+            <div class="dnd-slot-stepper">
+                <button type="button" class="dnd-slot-stepper-btn" aria-label="Restore one level @slot.Level spell slot"
+                        @onclick="() => AdjustExpended(slot, -1)">&minus;</button>
+                <span class="dnd-slot-stepper-value">@slot.Expended</span>
+                <button type="button" class="dnd-slot-stepper-btn" aria-label="Expend one level @slot.Level spell slot"
+                        @onclick="() => AdjustExpended(slot, 1)">+</button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public CharacterSheet Character { get; set; } = default!;
+
+    [Inject] private ICharacterAutosaveService Autosave { get; set; } = default!;
+
+    /// <summary>
+    /// Updates the client-entered slot total for a level. Lowering the total immediately clamps
+    /// the expended count down to it, so "expended cannot exceed total" holds even right after
+    /// a total edit.
+    /// </summary>
+    private void HandleTotalInput(SpellSlotLevel slot, ChangeEventArgs e)
+    {
+        slot.Total = Math.Max(0, int.TryParse(e.Value?.ToString(), out var parsed) ? parsed : 0);
+        slot.Expended = Math.Min(slot.Expended, slot.Total);
+        Autosave.NotifyChanged(Character);
+    }
+
+    /// <summary>
+    /// Pip-index toggle: tapping a filled pip clears down to it, tapping an empty pip fills up to
+    /// it. Mirrors the death-save pip arithmetic; bounded naturally because pip count == Total.
+    /// </summary>
+    private void TogglePip(SpellSlotLevel slot, int index)
+    {
+        slot.Expended = index <= slot.Expended ? index - 1 : index;
+        Autosave.NotifyChanged(Character);
+    }
+
+    /// <summary>
+    /// Minus/plus stepper for Expended, clamped on both sides to [0, Total].
+    /// </summary>
+    private void AdjustExpended(SpellSlotLevel slot, int delta)
+    {
+        slot.Expended = Math.Clamp(slot.Expended + delta, 0, slot.Total);
+        Autosave.NotifyChanged(Character);
+    }
+}

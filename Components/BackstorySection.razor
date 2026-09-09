@@ -1,0 +1,20 @@
+<div class="dnd-backstory">
+    <label class="dnd-backstory-field">
+        <span class="dnd-backstory-label">Character Backstory</span>
+        <textarea class="dnd-backstory-textarea" rows="10"
+                  value="@Character.Backstory"
+                  @oninput="HandleBackstoryInput"></textarea>
+    </label>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public CharacterSheet Character { get; set; } = default!;
+
+    [Inject] private ICharacterAutosaveService Autosave { get; set; } = default!;
+
+    private void HandleBackstoryInput(ChangeEventArgs e)
+    {
+        Character.Backstory = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+}

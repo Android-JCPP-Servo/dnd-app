@@ -1,0 +1,108 @@
+.dnd-slot-tracker {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.dnd-slot-row {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    min-height: var(--dnd-control-min-h);
+}
+
+.dnd-slot-row.is-empty {
+    opacity: 0.5;
+}
+
+.dnd-slot-label {
+    flex: 1 1 4rem;
+    font-size: var(--dnd-control-font);
+    font-weight: 600;
+}
+
+.dnd-slot-total-field {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    gap: 0.25rem;
+}
+
+.dnd-slot-total-label {
+    font-size: var(--dnd-label-font);
+    font-weight: 600;
+}
+
+.dnd-slot-total-input {
+    border: 0.0625rem solid #d6d5d5;
+    border-radius: 0.25rem;
+    box-sizing: border-box;
+    font-size: var(--dnd-control-font);
+    min-height: var(--dnd-control-min-h);
+    min-width: var(--dnd-control-min-w);
+    text-align: center;
+    width: 3rem;
+}
+
+.dnd-slot-pips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.dnd-slot-pip {
+    background-color: #ffffff;
+    border: 0.0625rem solid #6b6b6b;
+    border-radius: 50%;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    height: var(--dnd-toggle-size);
+    min-height: var(--dnd-toggle-size);
+    min-width: var(--dnd-toggle-size);
+    padding: 0;
+    width: var(--dnd-toggle-size);
+}
+
+.dnd-slot-pip.is-marked {
+    background-color: #6a1b9a;
+    border-color: #6a1b9a;
+}
+
+.dnd-slot-stepper {
+    align-items: center;
+    display: flex;
+    flex-shrink: 0;
+    gap: 0.25rem;
+}
+
+.dnd-slot-stepper-btn {
+    border: 0.0625rem solid #6b6b6b;
+    border-radius: 0.25rem;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    font-size: 1rem;
+    line-height: 1;
+    min-height: var(--dnd-control-min-h);
+    min-width: var(--dnd-control-min-w);
+}
+
+.dnd-slot-stepper-value {
+    box-sizing: border-box;
+    flex-shrink: 0;
+    font-size: var(--dnd-control-font);
+    text-align: center;
+    width: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .dnd-slot-label {
+        flex: 0 0 5rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    .dnd-slot-label {
+        font-size: 0.8rem;
+    }
+}

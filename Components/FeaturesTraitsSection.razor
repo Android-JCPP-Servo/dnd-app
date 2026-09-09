@@ -1,0 +1,17 @@
+<label class="dnd-features-field">
+    <span class="dnd-features-label">Features &amp; Traits</span>
+    <textarea class="dnd-features-input" rows="10" value="@Character.FeaturesAndTraits"
+              @oninput="HandleFeaturesAndTraitsInput"></textarea>
+</label>
+
+@code {
+    [Parameter, EditorRequired] public CharacterSheet Character { get; set; } = default!;
+
+    [Inject] private ICharacterAutosaveService Autosave { get; set; } = default!;
+
+    private void HandleFeaturesAndTraitsInput(ChangeEventArgs e)
+    {
+        Character.FeaturesAndTraits = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+}

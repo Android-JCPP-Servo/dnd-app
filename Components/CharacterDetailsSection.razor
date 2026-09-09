@@ -1,0 +1,126 @@
+<div class="dnd-details">
+    <div class="dnd-details-fields-row">
+        <label class="dnd-details-field">
+            <span class="dnd-details-label">Age</span>
+            <input type="text" class="dnd-details-input"
+                   value="@Character.PhysicalTraits.Age"
+                   @oninput="HandleAgeInput" />
+        </label>
+
+        <label class="dnd-details-field">
+            <span class="dnd-details-label">Height</span>
+            <input type="text" class="dnd-details-input"
+                   value="@Character.PhysicalTraits.Height"
+                   @oninput="HandleHeightInput" />
+        </label>
+
+        <label class="dnd-details-field">
+            <span class="dnd-details-label">Weight</span>
+            <input type="text" class="dnd-details-input"
+                   value="@Character.PhysicalTraits.Weight"
+                   @oninput="HandleWeightInput" />
+        </label>
+
+        <label class="dnd-details-field">
+            <span class="dnd-details-label">Eyes</span>
+            <input type="text" class="dnd-details-input"
+                   value="@Character.PhysicalTraits.Eyes"
+                   @oninput="HandleEyesInput" />
+        </label>
+
+        <label class="dnd-details-field">
+            <span class="dnd-details-label">Skin</span>
+            <input type="text" class="dnd-details-input"
+                   value="@Character.PhysicalTraits.Skin"
+                   @oninput="HandleSkinInput" />
+        </label>
+
+        <label class="dnd-details-field">
+            <span class="dnd-details-label">Hair</span>
+            <input type="text" class="dnd-details-input"
+                   value="@Character.PhysicalTraits.Hair"
+                   @oninput="HandleHairInput" />
+        </label>
+    </div>
+
+    <label class="dnd-details-field dnd-details-textarea-field">
+        <span class="dnd-details-label">Character Appearance</span>
+        <textarea class="dnd-details-textarea" rows="4"
+                  value="@Character.CharacterAppearance"
+                  @oninput="HandleCharacterAppearanceInput"></textarea>
+    </label>
+
+    <label class="dnd-details-field dnd-details-textarea-field">
+        <span class="dnd-details-label">Additional Features &amp; Traits</span>
+        <textarea class="dnd-details-textarea" rows="4"
+                  value="@Character.AdditionalFeaturesAndTraits"
+                  @oninput="HandleAdditionalFeaturesAndTraitsInput"></textarea>
+    </label>
+
+    <label class="dnd-details-field dnd-details-textarea-field">
+        <span class="dnd-details-label">Treasure</span>
+        <textarea class="dnd-details-textarea" rows="4"
+                  value="@Character.Treasure"
+                  @oninput="HandleTreasureInput"></textarea>
+    </label>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public CharacterSheet Character { get; set; } = default!;
+
+    [Inject] private ICharacterAutosaveService Autosave { get; set; } = default!;
+
+    private void HandleAgeInput(ChangeEventArgs e)
+    {
+        Character.PhysicalTraits.Age = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleHeightInput(ChangeEventArgs e)
+    {
+        Character.PhysicalTraits.Height = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleWeightInput(ChangeEventArgs e)
+    {
+        Character.PhysicalTraits.Weight = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleEyesInput(ChangeEventArgs e)
+    {
+        Character.PhysicalTraits.Eyes = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleSkinInput(ChangeEventArgs e)
+    {
+        Character.PhysicalTraits.Skin = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleHairInput(ChangeEventArgs e)
+    {
+        Character.PhysicalTraits.Hair = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleCharacterAppearanceInput(ChangeEventArgs e)
+    {
+        Character.CharacterAppearance = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleAdditionalFeaturesAndTraitsInput(ChangeEventArgs e)
+    {
+        Character.AdditionalFeaturesAndTraits = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleTreasureInput(ChangeEventArgs e)
+    {
+        Character.Treasure = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+}

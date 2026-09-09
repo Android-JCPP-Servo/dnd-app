@@ -1,0 +1,172 @@
+<div class="dnd-spell-section">
+    <div class="dnd-spell-header-fields">
+        <label class="dnd-spell-field">
+            <span class="dnd-spell-label">Spellcasting Ability</span>
+            <input type="text" class="dnd-spell-input"
+                   value="@Character.Spellcasting.SpellcastingAbility"
+                   aria-label="Spellcasting ability"
+                   @oninput="HandleSpellcastingAbilityInput" />
+        </label>
+
+        <label class="dnd-spell-field">
+            <span class="dnd-spell-label">Spell Save DC</span>
+            <input type="number" inputmode="numeric" class="dnd-spell-input"
+                   value="@Character.Spellcasting.SpellSaveDc"
+                   aria-label="Spell save DC"
+                   @oninput="HandleSpellSaveDcInput" />
+        </label>
+
+        <label class="dnd-spell-field">
+            <span class="dnd-spell-label">Spell Attack Bonus</span>
+            <input type="text" class="dnd-spell-input"
+                   value="@Character.Spellcasting.SpellAttackBonus"
+                   aria-label="Spell attack bonus"
+                   @oninput="HandleSpellAttackBonusInput" />
+        </label>
+    </div>
+
+    <RepeatingSection TRow="SpellEntry"
+                      Rows="Character.Spellcasting.Spells"
+                      RowFactory="() => new SpellEntry()"
+                      AddLabel="Add Spell"
+                      EmptyText="No spells yet."
+                      OnChanged="HandleChanged">
+        <RowTemplate Context="spell">
+            <div class="dnd-spell-tile">
+                <div class="dnd-spell-tile-header">
+                    <input type="text" class="dnd-spell-input dnd-spell-name-input" value="@spell.Name"
+                           aria-label="Spell name"
+                           @oninput="e => SetName(spell, e)" />
+                    <button type="button" class="dnd-spell-toggle"
+                            aria-expanded="@(IsExpanded(spell) ? "true" : "false")"
+                            aria-label="@(IsExpanded(spell) ? "Collapse spell" : "Expand spell")"
+                            @onclick="() => ToggleExpanded(spell)">
+                        @(IsExpanded(spell) ? "▲" : "▼")
+                    </button>
+                </div>
+
+                @if (IsExpanded(spell))
+                {
+                    <div class="dnd-spell-tile-body">
+                        <label class="dnd-spell-field">
+                            <span class="dnd-spell-label">Casting Time</span>
+                            <input type="text" class="dnd-spell-input" value="@spell.CastingTime"
+                                   aria-label="Casting time"
+                                   @oninput="e => SetCastingTime(spell, e)" />
+                        </label>
+
+                        <label class="dnd-spell-field">
+                            <span class="dnd-spell-label">Range</span>
+                            <input type="text" class="dnd-spell-input" value="@spell.Range"
+                                   aria-label="Range"
+                                   @oninput="e => SetRange(spell, e)" />
+                        </label>
+
+                        <label class="dnd-spell-field">
+                            <span class="dnd-spell-label">Components</span>
+                            <input type="text" class="dnd-spell-input" value="@spell.Components"
+                                   aria-label="Components"
+                                   @oninput="e => SetComponents(spell, e)" />
+                        </label>
+
+                        <label class="dnd-spell-field">
+                            <span class="dnd-spell-label">Duration</span>
+                            <input type="text" class="dnd-spell-input" value="@spell.Duration"
+                                   aria-label="Duration"
+                                   @oninput="e => SetDuration(spell, e)" />
+                        </label>
+
+                        <label class="dnd-spell-field dnd-spell-effect-field">
+                            <span class="dnd-spell-label">Effect</span>
+                            <textarea class="dnd-spell-input dnd-spell-effect" rows="4" value="@spell.Effect"
+                                      aria-label="Spell effect"
+                                      @oninput="e => SetEffect(spell, e)"></textarea>
+                        </label>
+                    </div>
+                }
+            </div>
+        </RowTemplate>
+    </RepeatingSection>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public CharacterSheet Character { get; set; } = default!;
+
+    [Inject] private ICharacterAutosaveService Autosave { get; set; } = default!;
+
+    /// <summary>
+    /// Per-tile expand/collapse state, keyed by <see cref="SpellEntry.Id"/>. This is view state
+    /// only — it deliberately does not live on the model, so expanding one tile can never affect
+    /// another and never gets persisted or round-tripped.
+    /// </summary>
+    private readonly HashSet<Guid> _expandedSpellIds = new();
+
+    private bool IsExpanded(SpellEntry spell) => _expandedSpellIds.Contains(spell.Id);
+
+    private void ToggleExpanded(SpellEntry spell)
+    {
+        if (!_expandedSpellIds.Add(spell.Id))
+        {
+            _expandedSpellIds.Remove(spell.Id);
+        }
+    }
+
+    private void HandleSpellcastingAbilityInput(ChangeEventArgs e)
+    {
+        Character.Spellcasting.SpellcastingAbility = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleSpellSaveDcInput(ChangeEventArgs e)
+    {
+        Character.Spellcasting.SpellSaveDc = int.TryParse(e.Value?.ToString(), out var parsed) ? parsed : 0;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleSpellAttackBonusInput(ChangeEventArgs e)
+    {
+        Character.Spellcasting.SpellAttackBonus = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void SetName(SpellEntry spell, ChangeEventArgs e)
+    {
+        spell.Name = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void SetCastingTime(SpellEntry spell, ChangeEventArgs e)
+    {
+        spell.CastingTime = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void SetRange(SpellEntry spell, ChangeEventArgs e)
+    {
+        spell.Range = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void SetComponents(SpellEntry spell, ChangeEventArgs e)
+    {
+        spell.Components = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void SetDuration(SpellEntry spell, ChangeEventArgs e)
+    {
+        spell.Duration = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void SetEffect(SpellEntry spell, ChangeEventArgs e)
+    {
+        spell.Effect = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleChanged()
+    {
+        Autosave.NotifyChanged(Character);
+    }
+}
