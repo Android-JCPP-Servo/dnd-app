@@ -26,8 +26,12 @@
                 <SheetSection SectionKey="saves-skills" Title="Saving Throws &amp; Skills">
                     <SavingThrowsSkills Character="_character" />
                 </SheetSection>
-                <SheetSection SectionKey="combat" Title="Combat" />
-                <SheetSection SectionKey="attacks" Title="Attacks" />
+                <SheetSection SectionKey="combat" Title="Combat">
+                    <CombatVitals Character="_character" />
+                </SheetSection>
+                <SheetSection SectionKey="attacks" Title="Attacks &amp; Spellcasting">
+                    <AttacksTable Character="_character" />
+                </SheetSection>
                 <SheetSection SectionKey="equipment" Title="Equipment" />
                 <SheetSection SectionKey="features-traits" Title="Features &amp; Traits" />
                 <SheetSection SectionKey="personality" Title="Personality" />

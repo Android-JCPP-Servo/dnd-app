@@ -1,0 +1,52 @@
+.dnd-repeating-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.dnd-repeating-empty {
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.dnd-repeating-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.dnd-repeating-row {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+    min-height: 44px;
+}
+
+.dnd-repeating-row-content {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.dnd-repeating-remove,
+.dnd-repeating-add {
+    box-sizing: border-box;
+    flex-shrink: 0;
+    min-height: 44px;
+    min-width: 44px;
+}
+
+.dnd-repeating-add {
+    align-self: flex-start;
+}
+
+@media (min-width: 768px) {
+    .dnd-repeating-section {
+        gap: 0.75rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    .dnd-repeating-empty {
+        font-size: 1rem;
+    }
+}

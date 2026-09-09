@@ -1,0 +1,70 @@
+@typeparam TRow where TRow : class
+
+<div class="dnd-repeating-section">
+    @if (HeaderTemplate is not null)
+    {
+        @HeaderTemplate
+    }
+
+    @if (Rows.Count == 0)
+    {
+        <p class="dnd-repeating-empty">@EmptyText</p>
+    }
+    else
+    {
+        <div class="dnd-repeating-rows">
+            @foreach (var row in Rows)
+            {
+                <div class="dnd-repeating-row" @key="row">
+                    <div class="dnd-repeating-row-content">
+                        @RowTemplate(row)
+                    </div>
+                    <button type="button"
+                            class="dnd-repeating-remove"
+                            aria-label="Remove entry"
+                            @onclick="() => HandleRemoveAsync(row)">
+                        <span aria-hidden="true">&#128465;</span>
+                    </button>
+                </div>
+            }
+        </div>
+    }
+
+    <button type="button" class="dnd-repeating-add" @onclick="HandleAddAsync">@AddLabel</button>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public List<TRow> Rows { get; set; } = default!;
+
+    [Parameter, EditorRequired] public RenderFragment<TRow> RowTemplate { get; set; } = default!;
+
+    [Parameter, EditorRequired] public Func<TRow> RowFactory { get; set; } = default!;
+
+    [Parameter] public RenderFragment? HeaderTemplate { get; set; }
+
+    [Parameter] public string EmptyText { get; set; } = "No entries yet.";
+
+    [Parameter] public string AddLabel { get; set; } = "Add";
+
+    [Parameter] public EventCallback OnChanged { get; set; }
+
+    /// <summary>
+    /// Appends exactly one blank row, produced by the caller-supplied <see cref="RowFactory"/>,
+    /// then notifies the consumer so it can autosave.
+    /// </summary>
+    private async Task HandleAddAsync()
+    {
+        Rows.Add(RowFactory());
+        await OnChanged.InvokeAsync();
+    }
+
+    /// <summary>
+    /// Removes a single row in place, leaving every other row's values untouched, then notifies
+    /// the consumer so it can autosave.
+    /// </summary>
+    private async Task HandleRemoveAsync(TRow row)
+    {
+        Rows.Remove(row);
+        await OnChanged.InvokeAsync();
+    }
+}

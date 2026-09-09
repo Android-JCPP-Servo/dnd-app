@@ -1,0 +1,65 @@
+<RepeatingSection TRow="AttackEntry"
+                  Rows="Character.Attacks"
+                  RowFactory="() => new AttackEntry()"
+                  AddLabel="Add Attack"
+                  EmptyText="No attacks yet."
+                  OnChanged="HandleChanged">
+    <HeaderTemplate>
+        <div class="dnd-attacks-header">
+            <span class="dnd-attacks-header-cell">Name</span>
+            <span class="dnd-attacks-header-cell">Attack Bonus</span>
+            <span class="dnd-attacks-header-cell">Damage/Type</span>
+        </div>
+    </HeaderTemplate>
+    <RowTemplate Context="attack">
+        <div class="dnd-attacks-row">
+            <div class="dnd-attacks-field">
+                <span class="dnd-attacks-field-label">Name</span>
+                <input type="text" class="dnd-attacks-input" value="@attack.Name"
+                       aria-label="Attack name"
+                       @oninput="e => SetName(attack, e)" />
+            </div>
+            <div class="dnd-attacks-field">
+                <span class="dnd-attacks-field-label">Attack Bonus</span>
+                <input type="text" class="dnd-attacks-input" value="@attack.AttackBonus"
+                       aria-label="Attack bonus"
+                       @oninput="e => SetAttackBonus(attack, e)" />
+            </div>
+            <div class="dnd-attacks-field">
+                <span class="dnd-attacks-field-label">Damage/Type</span>
+                <input type="text" class="dnd-attacks-input" value="@attack.DamageAndType"
+                       aria-label="Damage and type"
+                       @oninput="e => SetDamageAndType(attack, e)" />
+            </div>
+        </div>
+    </RowTemplate>
+</RepeatingSection>
+
+@code {
+    [Parameter, EditorRequired] public CharacterSheet Character { get; set; } = default!;
+
+    [Inject] private ICharacterAutosaveService Autosave { get; set; } = default!;
+
+    private void SetName(AttackEntry attack, ChangeEventArgs e)
+    {
+        attack.Name = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void SetAttackBonus(AttackEntry attack, ChangeEventArgs e)
+    {
+        attack.AttackBonus = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void SetDamageAndType(AttackEntry attack, ChangeEventArgs e)
+    {
+        attack.DamageAndType = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleChanged()
+    {
+        Autosave.NotifyChanged(Character);
+    }
+}

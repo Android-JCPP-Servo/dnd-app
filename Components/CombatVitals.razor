@@ -1,0 +1,248 @@
+<div class="dnd-combat-vitals">
+    <div class="dnd-combat-fields-row">
+        <label class="dnd-combat-field">
+            <span class="dnd-combat-label">Armor Class</span>
+            <input type="number" inputmode="numeric" class="dnd-combat-input"
+                   value="@Character.ArmorClass"
+                   @oninput="HandleArmorClassInput" />
+        </label>
+
+        <label class="dnd-combat-field">
+            <span class="dnd-combat-label">Initiative</span>
+            <input type="text" class="dnd-combat-input"
+                   value="@Character.Initiative"
+                   @oninput="HandleInitiativeInput" />
+        </label>
+
+        <label class="dnd-combat-field">
+            <span class="dnd-combat-label">Speed</span>
+            <input type="text" class="dnd-combat-input"
+                   value="@Character.Speed"
+                   @oninput="HandleSpeedInput" />
+        </label>
+    </div>
+
+    <div class="dnd-combat-fields-row">
+        <label class="dnd-combat-field">
+            <span class="dnd-combat-label">Hit Point Maximum</span>
+            <input type="number" inputmode="numeric" class="dnd-combat-input"
+                   value="@Character.HitPoints.Maximum"
+                   @oninput="HandleMaximumHpInput" />
+        </label>
+    </div>
+
+    <div class="dnd-combat-stepper-row">
+        <span class="dnd-combat-stepper-label">Current HP</span>
+        <div class="dnd-stepper">
+            <button type="button" class="dnd-stepper-btn" aria-label="Decrease current HP by 1"
+                    @onclick="() => AdjustStepper(() => Character.HitPoints.Current, v => Character.HitPoints.Current = v, -1)">&minus;</button>
+            <input type="number" inputmode="numeric" class="dnd-stepper-value"
+                   value="@Character.HitPoints.Current"
+                   @oninput="e => SetStepperValue(v => Character.HitPoints.Current = v, e)" />
+            <button type="button" class="dnd-stepper-btn" aria-label="Increase current HP by 1"
+                    @onclick="() => AdjustStepper(() => Character.HitPoints.Current, v => Character.HitPoints.Current = v, 1)">+</button>
+        </div>
+    </div>
+
+    <div class="dnd-combat-quickentry">
+        <label class="dnd-combat-field">
+            <span class="dnd-combat-label">Damage / Heal Amount</span>
+            <input @key="_amountEntryKey"
+                   type="text" inputmode="numeric" class="dnd-combat-input dnd-combat-quickentry-input"
+                   value="@_amountEntry"
+                   @oninput="HandleAmountInput"
+                   @onkeydown="HandleAmountKeyDown" />
+        </label>
+        <div class="dnd-combat-quickentry-buttons">
+            <button type="button" class="dnd-combat-quickentry-btn dnd-combat-damage" @onclick="ApplyDamage">Damage</button>
+            <button type="button" class="dnd-combat-quickentry-btn dnd-combat-heal" @onclick="ApplyHeal">Heal</button>
+        </div>
+    </div>
+
+    <div class="dnd-combat-stepper-row">
+        <span class="dnd-combat-stepper-label">Temporary HP</span>
+        <div class="dnd-stepper">
+            <button type="button" class="dnd-stepper-btn" aria-label="Decrease temporary HP by 1"
+                    @onclick="() => AdjustStepper(() => Character.HitPoints.Temporary, v => Character.HitPoints.Temporary = v, -1)">&minus;</button>
+            <input type="number" inputmode="numeric" class="dnd-stepper-value"
+                   value="@Character.HitPoints.Temporary"
+                   @oninput="e => SetStepperValue(v => Character.HitPoints.Temporary = v, e)" />
+            <button type="button" class="dnd-stepper-btn" aria-label="Increase temporary HP by 1"
+                    @onclick="() => AdjustStepper(() => Character.HitPoints.Temporary, v => Character.HitPoints.Temporary = v, 1)">+</button>
+        </div>
+    </div>
+
+    <div class="dnd-combat-stepper-row">
+        <span class="dnd-combat-stepper-label">Hit Dice Remaining</span>
+        <div class="dnd-stepper">
+            <button type="button" class="dnd-stepper-btn" aria-label="Decrease hit dice remaining by 1"
+                    @onclick="() => AdjustStepper(() => Character.HitPoints.HitDiceRemaining, v => Character.HitPoints.HitDiceRemaining = v, -1)">&minus;</button>
+            <input type="number" inputmode="numeric" class="dnd-stepper-value"
+                   value="@Character.HitPoints.HitDiceRemaining"
+                   @oninput="e => SetStepperValue(v => Character.HitPoints.HitDiceRemaining = v, e)" />
+            <button type="button" class="dnd-stepper-btn" aria-label="Increase hit dice remaining by 1"
+                    @onclick="() => AdjustStepper(() => Character.HitPoints.HitDiceRemaining, v => Character.HitPoints.HitDiceRemaining = v, 1)">+</button>
+        </div>
+
+        <label class="dnd-combat-field dnd-combat-hitdicetype-field">
+            <span class="dnd-combat-label">Hit Dice Type</span>
+            <input type="text" class="dnd-combat-input dnd-combat-hitdicetype-input"
+                   value="@Character.HitPoints.HitDiceType"
+                   @oninput="HandleHitDiceTypeInput" />
+        </label>
+    </div>
+
+    <div class="dnd-combat-deathsaves">
+        <div class="dnd-combat-deathsaves-row">
+            <span class="dnd-combat-label">Death Saves &mdash; Successes</span>
+            <div class="dnd-combat-pips">
+                @for (var i = 1; i <= 3; i++)
+                {
+                    var index = i;
+                    <button type="button"
+                            class="dnd-death-pip dnd-death-pip-success @(index <= Character.DeathSaves.Successes ? "is-marked" : "")"
+                            aria-pressed="@(index <= Character.DeathSaves.Successes ? "true" : "false")"
+                            aria-label="Death save success @index"
+                            @onclick="() => ToggleDeathSave(isSuccess: true, index)" />
+                }
+            </div>
+        </div>
+
+        <div class="dnd-combat-deathsaves-row">
+            <span class="dnd-combat-label">Death Saves &mdash; Failures</span>
+            <div class="dnd-combat-pips">
+                @for (var i = 1; i <= 3; i++)
+                {
+                    var index = i;
+                    <button type="button"
+                            class="dnd-death-pip dnd-death-pip-failure @(index <= Character.DeathSaves.Failures ? "is-marked" : "")"
+                            aria-pressed="@(index <= Character.DeathSaves.Failures ? "true" : "false")"
+                            aria-label="Death save failure @index"
+                            @onclick="() => ToggleDeathSave(isSuccess: false, index)" />
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public CharacterSheet Character { get; set; } = default!;
+
+    [Inject] private ICharacterAutosaveService Autosave { get; set; } = default!;
+
+    private string _amountEntry = string.Empty;
+
+    private int _amountEntryKey;
+
+    private void HandleArmorClassInput(ChangeEventArgs e)
+    {
+        Character.ArmorClass = int.TryParse(e.Value?.ToString(), out var parsed) ? parsed : 0;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleInitiativeInput(ChangeEventArgs e)
+    {
+        Character.Initiative = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleSpeedInput(ChangeEventArgs e)
+    {
+        Character.Speed = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleMaximumHpInput(ChangeEventArgs e)
+    {
+        Character.HitPoints.Maximum = int.TryParse(e.Value?.ToString(), out var parsed) ? parsed : 0;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleHitDiceTypeInput(ChangeEventArgs e)
+    {
+        Character.HitPoints.HitDiceType = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    /// <summary>
+    /// Shared stepper tap handler for Current/Temporary HP and Hit Dice Remaining. Every stepper
+    /// on this sheet floors at zero; none of them clamp against an upper bound (Current HP is
+    /// explicitly allowed to exceed Maximum per the ticket's acceptance criteria).
+    /// </summary>
+    private void AdjustStepper(Func<int> getValue, Action<int> setValue, int delta)
+    {
+        var next = Math.Max(0, getValue() + delta);
+        setValue(next);
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void SetStepperValue(Action<int> setValue, ChangeEventArgs e)
+    {
+        var parsed = int.TryParse(e.Value?.ToString(), out var value) ? value : 0;
+        setValue(Math.Max(0, parsed));
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleAmountInput(ChangeEventArgs e)
+    {
+        _amountEntry = e.Value?.ToString() ?? string.Empty;
+    }
+
+    private void HandleAmountKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            ApplyDamage();
+        }
+    }
+
+    private void ApplyDamage()
+    {
+        if (!int.TryParse(_amountEntry, out var amount))
+        {
+            return;
+        }
+
+        Character.HitPoints.Current = Math.Max(0, Character.HitPoints.Current - amount);
+        ClearAmountEntry();
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void ApplyHeal()
+    {
+        if (!int.TryParse(_amountEntry, out var amount))
+        {
+            return;
+        }
+
+        Character.HitPoints.Current += amount;
+        ClearAmountEntry();
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void ClearAmountEntry()
+    {
+        _amountEntry = string.Empty;
+        _amountEntryKey++;
+    }
+
+    /// <summary>
+    /// Pip-index toggle: tapping a filled pip clears down to it, tapping an empty pip fills up to
+    /// it. The model stores a count rather than three booleans, so this arithmetic is what maps
+    /// six independently tappable circles onto <see cref="DeathSaves.Successes"/> and
+    /// <see cref="DeathSaves.Failures"/> while naturally capping each track at three.
+    /// </summary>
+    private void ToggleDeathSave(bool isSuccess, int index)
+    {
+        if (isSuccess)
+        {
+            Character.DeathSaves.Successes = index <= Character.DeathSaves.Successes ? index - 1 : index;
+        }
+        else
+        {
+            Character.DeathSaves.Failures = index <= Character.DeathSaves.Failures ? index - 1 : index;
+        }
+
+        Autosave.NotifyChanged(Character);
+    }
+}
