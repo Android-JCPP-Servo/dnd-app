@@ -1,0 +1,36 @@
+<div class="dnd-confirm-backdrop">
+    <div class="dnd-confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="dnd-confirm-title">
+        <h2 id="dnd-confirm-title" class="dnd-confirm-title">Delete character</h2>
+        <p class="dnd-confirm-body">
+            Permanently delete <strong>@DisplayCharacterName</strong>? This cannot be undone.
+        </p>
+        <div class="dnd-confirm-actions">
+            <button type="button" class="dnd-confirm-cancel" @onclick="HandleCancelAsync">Cancel</button>
+            <button type="button" class="dnd-confirm-delete" @onclick="HandleConfirmAsync">Delete</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string CharacterName { get; set; } = default!;
+
+    [Parameter] public EventCallback OnConfirmed { get; set; }
+
+    [Parameter] public EventCallback OnCancelled { get; set; }
+
+    private string DisplayCharacterName => CharacterName is { Length: > 0 } ? CharacterName : "Unnamed character";
+
+    /// <summary>
+    /// Cancelling must leave the character untouched — this notifies the host and performs no
+    /// store call whatsoever.
+    /// </summary>
+    private async Task HandleCancelAsync()
+    {
+        await OnCancelled.InvokeAsync();
+    }
+
+    private async Task HandleConfirmAsync()
+    {
+        await OnConfirmed.InvokeAsync();
+    }
+}
