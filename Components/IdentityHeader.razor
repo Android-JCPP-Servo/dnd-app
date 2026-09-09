@@ -1,0 +1,105 @@
+<div class="dnd-identity-header">
+    <label class="dnd-identity-field">
+        <span class="dnd-identity-label">Character Name</span>
+        <input type="text"
+               class="dnd-identity-input"
+               value="@Character.CharacterName"
+               @oninput="HandleCharacterNameInput" />
+    </label>
+
+    <label class="dnd-identity-field">
+        <span class="dnd-identity-label">Class &amp; Level</span>
+        <input type="text"
+               class="dnd-identity-input"
+               value="@Character.ClassAndLevel"
+               @oninput="HandleClassAndLevelInput" />
+    </label>
+
+    <label class="dnd-identity-field">
+        <span class="dnd-identity-label">Background</span>
+        <input type="text"
+               class="dnd-identity-input"
+               value="@Character.Background"
+               @oninput="HandleBackgroundInput" />
+    </label>
+
+    <label class="dnd-identity-field">
+        <span class="dnd-identity-label">Player Name</span>
+        <input type="text"
+               class="dnd-identity-input"
+               value="@Character.PlayerName"
+               @oninput="HandlePlayerNameInput" />
+    </label>
+
+    <label class="dnd-identity-field">
+        <span class="dnd-identity-label">Race</span>
+        <input type="text"
+               class="dnd-identity-input"
+               value="@Character.Race"
+               @oninput="HandleRaceInput" />
+    </label>
+
+    <label class="dnd-identity-field">
+        <span class="dnd-identity-label">Alignment</span>
+        <input type="text"
+               class="dnd-identity-input"
+               value="@Character.Alignment"
+               @oninput="HandleAlignmentInput" />
+    </label>
+
+    <label class="dnd-identity-field">
+        <span class="dnd-identity-label">Experience Points</span>
+        <input type="text"
+               class="dnd-identity-input"
+               value="@Character.ExperiencePoints"
+               @oninput="HandleExperiencePointsInput" />
+    </label>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public CharacterSheet Character { get; set; } = default!;
+
+    [Inject] private ICharacterAutosaveService Autosave { get; set; } = default!;
+
+    private void HandleCharacterNameInput(ChangeEventArgs e)
+    {
+        Character.CharacterName = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleClassAndLevelInput(ChangeEventArgs e)
+    {
+        Character.ClassAndLevel = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleBackgroundInput(ChangeEventArgs e)
+    {
+        Character.Background = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandlePlayerNameInput(ChangeEventArgs e)
+    {
+        Character.PlayerName = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleRaceInput(ChangeEventArgs e)
+    {
+        Character.Race = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleAlignmentInput(ChangeEventArgs e)
+    {
+        Character.Alignment = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleExperiencePointsInput(ChangeEventArgs e)
+    {
+        Character.ExperiencePoints = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+}

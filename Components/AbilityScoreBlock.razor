@@ -1,0 +1,85 @@
+<div class="dnd-ability-block">
+    <div class="dnd-ability-toprow">
+        <button type="button"
+                class="dnd-ability-inspiration @(Character.Inspiration ? "is-on" : "")"
+                aria-pressed="@(Character.Inspiration ? "true" : "false")"
+                @onclick="ToggleInspiration">Inspiration</button>
+
+        <label class="dnd-ability-field">
+            <span class="dnd-ability-label">Proficiency Bonus</span>
+            <input type="text"
+                   inputmode="text"
+                   class="dnd-ability-input dnd-ability-input-proficiency"
+                   value="@Character.ProficiencyBonus"
+                   @oninput="HandleProficiencyBonusInput" />
+        </label>
+    </div>
+
+    <div class="dnd-ability-rows">
+        @foreach (var entry in AbilityOrder)
+        {
+            var ability = entry.Get(Character.Abilities);
+
+            <div class="dnd-ability-row">
+                <span class="dnd-ability-row-label">@entry.Label</span>
+
+                <label class="dnd-ability-field">
+                    <span class="dnd-ability-label">Score</span>
+                    <input type="number"
+                           class="dnd-ability-input dnd-ability-input-score"
+                           value="@ability.Score"
+                           @oninput="e => HandleScoreInput(ability, e)" />
+                </label>
+
+                <label class="dnd-ability-field">
+                    <span class="dnd-ability-label">Modifier</span>
+                    <input type="text"
+                           inputmode="text"
+                           class="dnd-ability-input dnd-ability-input-modifier"
+                           value="@ability.Modifier"
+                           @oninput="e => HandleModifierInput(ability, e)" />
+                </label>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public CharacterSheet Character { get; set; } = default!;
+
+    [Inject] private ICharacterAutosaveService Autosave { get; set; } = default!;
+
+    private static readonly (string Label, Func<AbilitySet, AbilityScore> Get)[] AbilityOrder =
+    [
+        ("Strength",     a => a.Strength),
+        ("Dexterity",    a => a.Dexterity),
+        ("Constitution", a => a.Constitution),
+        ("Intelligence", a => a.Intelligence),
+        ("Wisdom",       a => a.Wisdom),
+        ("Charisma",     a => a.Charisma),
+    ];
+
+    private void HandleScoreInput(AbilityScore ability, ChangeEventArgs e)
+    {
+        ability.Score = int.TryParse(e.Value?.ToString(), out var parsed) ? parsed : 0;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleModifierInput(AbilityScore ability, ChangeEventArgs e)
+    {
+        ability.Modifier = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void ToggleInspiration()
+    {
+        Character.Inspiration = !Character.Inspiration;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void HandleProficiencyBonusInput(ChangeEventArgs e)
+    {
+        Character.ProficiencyBonus = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+}

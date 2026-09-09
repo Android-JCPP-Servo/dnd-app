@@ -17,9 +17,15 @@
             </header>
 
             <div class="dnd-sheet-grid">
-                <SheetSection SectionKey="core-stats" Title="Core Stats" />
-                <SheetSection SectionKey="abilities" Title="Ability Scores" />
-                <SheetSection SectionKey="saves-skills" Title="Saving Throws &amp; Skills" />
+                <SheetSection SectionKey="core-stats" Title="Core Stats">
+                    <IdentityHeader Character="_character" />
+                </SheetSection>
+                <SheetSection SectionKey="abilities" Title="Ability Scores">
+                    <AbilityScoreBlock Character="_character" />
+                </SheetSection>
+                <SheetSection SectionKey="saves-skills" Title="Saving Throws &amp; Skills">
+                    <SavingThrowsSkills Character="_character" />
+                </SheetSection>
                 <SheetSection SectionKey="combat" Title="Combat" />
                 <SheetSection SectionKey="attacks" Title="Attacks" />
                 <SheetSection SectionKey="equipment" Title="Equipment" />

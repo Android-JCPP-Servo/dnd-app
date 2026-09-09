@@ -1,0 +1,118 @@
+<div class="dnd-saves-skills">
+    <div class="dnd-saves-group">
+        <h3 class="dnd-group-title">Saving Throws</h3>
+        @foreach (var entry in SaveOrder)
+        {
+            var save = entry.Get(Character.SavingThrows);
+            <div class="dnd-row">
+                <button type="button"
+                        class="dnd-prof-circle @(save.IsProficient ? "is-marked" : "")"
+                        aria-pressed="@(save.IsProficient ? "true" : "false")"
+                        aria-label="Proficient in @entry.Label"
+                        @onclick="() => ToggleProficient(save)" />
+                <input type="text" class="dnd-row-bonus" value="@save.Bonus"
+                       @oninput="e => SetBonus(save, e)" />
+                <span class="dnd-row-label">@entry.Label</span>
+            </div>
+        }
+    </div>
+
+    <div class="dnd-skills-group">
+        <h3 class="dnd-group-title">Skills</h3>
+        @foreach (var entry in SkillOrder)
+        {
+            var skill = entry.Get(Character.Skills);
+            var label = $"{entry.Label} ({entry.Ability})";
+            <div class="dnd-row">
+                <button type="button"
+                        class="dnd-prof-circle @(skill.IsProficient ? "is-marked" : "")"
+                        aria-pressed="@(skill.IsProficient ? "true" : "false")"
+                        aria-label="Proficient in @label"
+                        @onclick="() => ToggleProficient(skill)" />
+                <input type="text" class="dnd-row-bonus" value="@skill.Bonus"
+                       @oninput="e => SetBonus(skill, e)" />
+                <span class="dnd-row-label">@label</span>
+            </div>
+        }
+    </div>
+
+    <div class="dnd-passive-wisdom-row">
+        <label class="dnd-row-label" for="dnd-passive-wisdom-input">Passive Wisdom (Perception)</label>
+        <input id="dnd-passive-wisdom-input" type="number" class="dnd-row-bonus"
+               value="@Character.PassiveWisdom"
+               @oninput="SetPassiveWisdom" />
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public CharacterSheet Character { get; set; } = default!;
+
+    [Inject] private ICharacterAutosaveService Autosave { get; set; } = default!;
+
+    private static readonly (string Label, Func<SavingThrowSet, SavingThrow> Get)[] SaveOrder =
+    [
+        ("Strength",     s => s.Strength),
+        ("Dexterity",    s => s.Dexterity),
+        ("Constitution", s => s.Constitution),
+        ("Intelligence", s => s.Intelligence),
+        ("Wisdom",       s => s.Wisdom),
+        ("Charisma",     s => s.Charisma),
+    ];
+
+    private static readonly (string Label, string Ability, Func<SkillSet, SkillProficiency> Get)[] SkillOrder =
+    [
+        ("Acrobatics",      "Dex", s => s.Acrobatics),
+        ("Animal Handling", "Wis", s => s.AnimalHandling),
+        ("Arcana",          "Int", s => s.Arcana),
+        ("Athletics",       "Str", s => s.Athletics),
+        ("Deception",       "Cha", s => s.Deception),
+        ("History",         "Int", s => s.History),
+        ("Insight",         "Wis", s => s.Insight),
+        ("Intimidation",    "Cha", s => s.Intimidation),
+        ("Investigation",   "Int", s => s.Investigation),
+        ("Medicine",        "Wis", s => s.Medicine),
+        ("Nature",          "Int", s => s.Nature),
+        ("Perception",      "Wis", s => s.Perception),
+        ("Performance",     "Cha", s => s.Performance),
+        ("Persuasion",      "Cha", s => s.Persuasion),
+        ("Religion",        "Int", s => s.Religion),
+        ("Sleight of Hand", "Dex", s => s.SleightOfHand),
+        ("Stealth",         "Dex", s => s.Stealth),
+        ("Survival",        "Wis", s => s.Survival),
+    ];
+
+    /// <summary>
+    /// Visual-only toggle: flips <see cref="SavingThrow.IsProficient"/> or
+    /// <see cref="SkillProficiency.IsProficient"/> and nothing else. Never touches the
+    /// adjacent Bonus field.
+    /// </summary>
+    private void ToggleProficient(SavingThrow save)
+    {
+        save.IsProficient = !save.IsProficient;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void ToggleProficient(SkillProficiency skill)
+    {
+        skill.IsProficient = !skill.IsProficient;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void SetBonus(SavingThrow save, ChangeEventArgs e)
+    {
+        save.Bonus = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void SetBonus(SkillProficiency skill, ChangeEventArgs e)
+    {
+        skill.Bonus = e.Value?.ToString() ?? string.Empty;
+        Autosave.NotifyChanged(Character);
+    }
+
+    private void SetPassiveWisdom(ChangeEventArgs e)
+    {
+        Character.PassiveWisdom = int.TryParse(e.Value?.ToString(), out var value) ? value : 0;
+        Autosave.NotifyChanged(Character);
+    }
+}

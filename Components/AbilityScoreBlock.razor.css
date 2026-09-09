@@ -1,0 +1,93 @@
+.dnd-ability-block {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.dnd-ability-toprow {
+    align-items: flex-end;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.dnd-ability-inspiration {
+    background-color: #f7f7f7;
+    border: 0.0625rem solid #d6d5d5;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    min-height: 44px;
+    padding: 0.5rem 1rem;
+}
+
+.dnd-ability-inspiration.is-on {
+    background-color: #ffd766;
+    border-color: #c9a227;
+}
+
+.dnd-ability-rows {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: 1fr;
+}
+
+.dnd-ability-row {
+    align-items: flex-end;
+    background-color: #ffffff;
+    border: 0.0625rem solid #d6d5d5;
+    border-radius: 0.375rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.dnd-ability-row-label {
+    flex: 1 0 100%;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.dnd-ability-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.dnd-ability-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.dnd-ability-input {
+    border: 0.0625rem solid #d6d5d5;
+    border-radius: 0.375rem;
+    box-sizing: border-box;
+    font-size: 1rem;
+    min-height: 44px;
+    padding: 0.5rem 0.75rem;
+}
+
+.dnd-ability-input-score,
+.dnd-ability-input-modifier {
+    width: 5rem;
+}
+
+.dnd-ability-input-proficiency {
+    width: 5rem;
+}
+
+@media (min-width: 768px) {
+    .dnd-ability-rows {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1200px) {
+    .dnd-ability-rows {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
