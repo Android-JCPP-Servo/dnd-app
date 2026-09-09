@@ -39,6 +39,7 @@
                     {
                         <button type="button"
                                 class="dnd-panel-item @(summary.Id == SelectedCharacterId ? "dnd-panel-item-active" : string.Empty)"
+                                title="@DisplayNameOf(summary)"
                                 @onclick="() => HandleSelectAsync(summary)">
                             @DisplayNameOf(summary)
                         </button>
