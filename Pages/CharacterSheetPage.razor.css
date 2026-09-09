@@ -1,0 +1,58 @@
+/* Mobile-first: single column, panel slot stacked above the sheet. */
+.dnd-sheet-host {
+    display: grid;
+    grid-template-columns: 1fr;
+    min-height: 100vh;
+}
+
+.dnd-sheet-panel-slot {
+    /* Reserves a column for ticket 191's <CharacterPanel />, even while empty in this ticket. */
+}
+
+.dnd-sheet-column {
+    box-sizing: border-box;
+    padding: 0.75rem 1rem 3rem;
+}
+
+.dnd-sheet-header {
+    margin-bottom: 0.75rem;
+}
+
+    .dnd-sheet-header h1 {
+        font-size: 1.5rem;
+        margin: 0;
+    }
+
+.dnd-sheet-grid {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: 1fr;
+}
+
+/* Two-column shell: dedicated panel column beside the sheet column. */
+@media (min-width: 768px) {
+    .dnd-sheet-host {
+        grid-template-columns: auto 1fr;
+    }
+
+    .dnd-sheet-column {
+        padding: 1rem 1.5rem 3rem;
+    }
+}
+
+/* Laptop: multi-column sheet grid so the majority of the sheet fits without scrolling. */
+@media (min-width: 1200px) {
+    .dnd-sheet-column {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem 1rem;
+    }
+
+    .dnd-sheet-header h1 {
+        font-size: 1.25rem;
+    }
+
+    .dnd-sheet-grid {
+        gap: 0.5rem;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}

@@ -1,0 +1,39 @@
+<div class="dnd-sheet-section">
+    <button type="button"
+            class="dnd-sheet-section-header"
+            aria-expanded="@(_isExpanded ? "true" : "false")"
+            @onclick="ToggleAsync">
+        <span class="dnd-sheet-section-title">@Title</span>
+        <span class="dnd-sheet-section-icon" aria-hidden="true">@(_isExpanded ? "−" : "+")</span>
+    </button>
+    <div class="dnd-sheet-section-body @(_isExpanded ? "is-expanded" : "is-collapsed")">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string SectionKey { get; set; } = default!;
+
+    [Parameter, EditorRequired] public string Title { get; set; } = default!;
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    [Inject] private ISheetSectionStateService SectionState { get; set; } = default!;
+
+    private bool _isExpanded = true;
+
+    /// <summary>
+    /// Loads this section's persisted open/closed state so the client's prior fold choice
+    /// survives a reload.
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+        _isExpanded = await SectionState.IsExpandedAsync(SectionKey);
+    }
+
+    private async Task ToggleAsync()
+    {
+        _isExpanded = !_isExpanded;
+        await SectionState.SetExpandedAsync(SectionKey, _isExpanded);
+    }
+}

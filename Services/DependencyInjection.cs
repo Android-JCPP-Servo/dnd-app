@@ -15,6 +15,8 @@ public static class DependencyInjection
         services.AddSingleton<IStorageStatusService, StorageStatusService>();
         services.AddScoped<ICharacterStore, IndexedDbCharacterStore>();
         services.AddScoped<ICharacterAutosaveService, CharacterAutosaveService>();
+        services.AddScoped<ISheetSectionStateService, SheetSectionStateService>();
+        services.AddScoped<ICharacterDuplicator, CharacterDuplicator>();
         return services;
     }
 }

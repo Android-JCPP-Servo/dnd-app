@@ -1,0 +1,87 @@
+@page "/"
+
+<PageTitle>@(_character?.DisplayName is { Length: > 0 } name ? name : "Character Sheet")</PageTitle>
+
+<div class="dnd-sheet-host">
+    <aside class="dnd-sheet-panel-slot">
+        <CharacterPanel SelectedCharacterId="_character?.Id"
+                         OnCharacterSelected="HandleCharacterSelected"
+                         OnCharacterDeleted="HandleCharacterDeletedAsync" />
+    </aside>
+
+    <section class="dnd-sheet-column">
+        @if (_character is not null)
+        {
+            <header class="dnd-sheet-header">
+                <h1>@_character.DisplayName</h1>
+            </header>
+
+            <div class="dnd-sheet-grid">
+                <SheetSection SectionKey="core-stats" Title="Core Stats" />
+                <SheetSection SectionKey="abilities" Title="Ability Scores" />
+                <SheetSection SectionKey="saves-skills" Title="Saving Throws &amp; Skills" />
+                <SheetSection SectionKey="combat" Title="Combat" />
+                <SheetSection SectionKey="attacks" Title="Attacks" />
+                <SheetSection SectionKey="equipment" Title="Equipment" />
+                <SheetSection SectionKey="features-traits" Title="Features &amp; Traits" />
+                <SheetSection SectionKey="personality" Title="Personality" />
+                <SheetSection SectionKey="spellcasting" Title="Spellcasting" />
+                <SheetSection SectionKey="backstory" Title="Backstory" />
+            </div>
+        }
+    </section>
+</div>
+
+@code {
+    [Inject] private ICharacterStore CharacterStore { get; set; } = default!;
+
+    [Inject] private ISheetSectionStateService SectionState { get; set; } = default!;
+
+    private CharacterSheet? _character;                          // CONTRACT: the one displayed sheet
+
+    /// <summary>
+    /// CONTRACT (ticket 191): wired to OnCharacterSelected. Whole-object replacement is the
+    /// only permitted way to change the displayed character — never mutate <see cref="_character"/>
+    /// field-by-field, or a stale field could bleed from the previously displayed character.
+    /// </summary>
+    private Task HandleCharacterSelected(CharacterSheet c)
+    {
+        _character = c;
+        return Task.CompletedTask;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await EnsureCharacterLoadedAsync();
+    }
+
+    /// <summary>
+    /// CONTRACT (ticket 192): post-delete fallback view. Loads the first saved character. If
+    /// none are saved, assigns a new, unsaved, in-memory character so the page is independently
+    /// demonstrable — persisted creation is owned by ticket 191's "New Character" action.
+    /// </summary>
+    private async Task EnsureCharacterLoadedAsync()
+    {
+        var summaries = await CharacterStore.ListAllAsync();
+        var first = summaries.FirstOrDefault();
+
+        if (first is null)
+        {
+            _character = new CharacterSheet();
+            return;
+        }
+
+        _character = await CharacterStore.GetAsync(first.Id) ?? new CharacterSheet();
+    }
+
+    /// <summary>
+    /// Wired to CharacterPanel's OnCharacterDeleted, raised only when the character just deleted
+    /// was the one currently displayed. Clears the now-gone character and reuses the existing
+    /// fallback loader so the page never shows a broken empty sheet.
+    /// </summary>
+    private async Task HandleCharacterDeletedAsync()
+    {
+        _character = null;
+        await EnsureCharacterLoadedAsync();
+    }
+}
