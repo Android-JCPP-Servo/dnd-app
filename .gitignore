@@ -6,3 +6,11 @@
 [Oo]bj/
 .vs/
 docs/prompts/
+
+# Per-developer IDE and editor state
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vscode/
+.idea/
