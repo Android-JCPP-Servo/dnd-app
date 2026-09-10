@@ -1,0 +1,44 @@
+<div class="dnd-import-backdrop">
+    <div class="dnd-import-dialog" role="alertdialog" aria-modal="true" aria-labelledby="dnd-import-title">
+        <h2 id="dnd-import-title" class="dnd-import-title">Character already exists</h2>
+        <p class="dnd-import-body">
+            A character named <strong>@DisplayCharacterName</strong> already exists. Keep both, or replace the existing one?
+        </p>
+        <div class="dnd-import-actions">
+            <button type="button" class="dnd-import-cancel" @onclick="HandleCancelAsync">Cancel</button>
+            <button type="button" class="dnd-import-keep-both" @onclick="HandleKeepBothAsync">Keep Both</button>
+            <button type="button" class="dnd-import-replace" @onclick="HandleReplaceAsync">Replace</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string CharacterName { get; set; } = default!;
+
+    [Parameter] public EventCallback OnCancelled { get; set; }
+
+    [Parameter] public EventCallback OnKeepBoth { get; set; }
+
+    [Parameter] public EventCallback OnReplace { get; set; }
+
+    private string DisplayCharacterName => CharacterName is { Length: > 0 } ? CharacterName : "Unnamed character";
+
+    /// <summary>
+    /// Cancelling must leave existing data untouched - this notifies the host and performs no
+    /// store call whatsoever.
+    /// </summary>
+    private async Task HandleCancelAsync()
+    {
+        await OnCancelled.InvokeAsync();
+    }
+
+    private async Task HandleKeepBothAsync()
+    {
+        await OnKeepBoth.InvokeAsync();
+    }
+
+    private async Task HandleReplaceAsync()
+    {
+        await OnReplace.InvokeAsync();
+    }
+}

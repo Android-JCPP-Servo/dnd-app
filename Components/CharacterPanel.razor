@@ -12,10 +12,21 @@
 <aside id="dnd-panel-list-region" class="dnd-panel @(_isOpen ? "dnd-panel-open" : string.Empty)">
     <div class="dnd-panel-header">
         <h2 class="dnd-panel-title">Characters</h2>
+        <ThemeToggle />
         <button type="button" class="dnd-panel-close" aria-label="Close character list" @onclick="Close">&times;</button>
     </div>
 
     <button type="button" class="dnd-panel-new" @onclick="HandleNewCharacterAsync">New Character</button>
+
+    <label class="dnd-panel-import">
+        Import Character
+        <InputFile accept=".json,application/json" OnChange="HandleImportSelectedAsync" />
+    </label>
+
+    @if (_importErrorMessage is not null)
+    {
+        <p class="dnd-panel-import-error">@_importErrorMessage</p>
+    }
 
     @if (_characters.Count == 0)
     {
@@ -59,6 +70,12 @@
                             <span aria-hidden="true">&#10064;</span>
                         </button>
                         <button type="button"
+                                class="dnd-panel-action-export"
+                                aria-label="Export @DisplayNameOf(summary)"
+                                @onclick="() => HandleExportAsync(summary)">
+                            <span aria-hidden="true">&#128228;</span>
+                        </button>
+                        <button type="button"
                                 class="dnd-panel-action-delete"
                                 aria-label="Delete @DisplayNameOf(summary)"
                                 @onclick="() => RequestDelete(summary)">
@@ -78,6 +95,14 @@
                                   OnCancelled="HandleDeleteCancelled" />
 }
 
+@if (_pendingImport is not null)
+{
+    <ImportConflictPrompt CharacterName="@(_pendingImport.Character?.DisplayName ?? string.Empty)"
+                           OnCancelled="HandleImportCancelled"
+                           OnKeepBoth="HandleImportKeepBothAsync"
+                           OnReplace="HandleImportReplaceAsync" />
+}
+
 @code {
     [Parameter] public Guid? SelectedCharacterId { get; set; }
 
@@ -91,6 +116,12 @@
 
     [Inject] private ICharacterDuplicator Duplicator { get; set; } = default!;
 
+    [Inject] private ICharacterTransferService Transfer { get; set; } = default!;
+
+    // Generous headroom over the resized-portrait cap (see CharacterPortrait.MaxResizedFileBytes)
+    // to account for base64 inflation (~33%) plus the rest of the sheet's JSON.
+    private const long MaxImportFileBytes = 16 * 1024 * 1024;
+
     private IReadOnlyList<CharacterSummary> _characters = Array.Empty<CharacterSummary>();
 
     private bool _isOpen;
@@ -102,6 +133,10 @@
     private Guid? _pendingDeleteId;
 
     private string _pendingDeleteName = string.Empty;
+
+    private CharacterExportDocument? _pendingImport;
+
+    private string? _importErrorMessage;
 
     /// <summary>
     /// Loads the initial character list so the panel is populated on first render.
@@ -235,6 +270,97 @@
 
         await RefreshListAsync();
         await OnCharacterSelected.InvokeAsync(copy);
+
+        _isOpen = false;
+    }
+
+    /// <summary>
+    /// Flushes any pending autosave before exporting so the downloaded file reflects the latest
+    /// edits rather than a stale saved state, then triggers the download.
+    /// </summary>
+    private async Task HandleExportAsync(CharacterSummary summary)
+    {
+        await Autosave.FlushAsync();
+        await Transfer.ExportAsync(summary.Id);
+    }
+
+    /// <summary>
+    /// Parses the selected file and, if it is a valid character export, either imports it
+    /// immediately (no name collision) or defers to <see cref="ImportConflictPrompt"/> so an
+    /// existing character of the same name is never silently overwritten. A malformed or
+    /// non-character file surfaces an error message and makes no store call at all.
+    /// </summary>
+    private async Task HandleImportSelectedAsync(InputFileChangeEventArgs e)
+    {
+        _importErrorMessage = null;
+
+        CharacterExportDocument? document;
+        await using (var stream = e.File.OpenReadStream(maxAllowedSize: MaxImportFileBytes))
+        {
+            document = await Transfer.ParseAsync(stream);
+        }
+
+        if (document?.Character is null)
+        {
+            _importErrorMessage = "That file could not be imported. It may be corrupted or not a character export.";
+            return;
+        }
+
+        var existingNames = _characters
+            .Select(summary => summary.DisplayName)
+            .ToHashSet(StringComparer.Ordinal);
+
+        if (existingNames.Contains(document.Character.DisplayName))
+        {
+            _pendingImport = document;
+        }
+        else
+        {
+            await CompleteImportAsync(document, ImportConflictResolution.Replace);
+        }
+    }
+
+    private async Task HandleImportKeepBothAsync()
+    {
+        if (_pendingImport is null)
+        {
+            return;
+        }
+
+        await CompleteImportAsync(_pendingImport, ImportConflictResolution.KeepBoth);
+    }
+
+    private async Task HandleImportReplaceAsync()
+    {
+        if (_pendingImport is null)
+        {
+            return;
+        }
+
+        await CompleteImportAsync(_pendingImport, ImportConflictResolution.Replace);
+    }
+
+    /// <summary>
+    /// Cancelling leaves existing data untouched: no store call is made at all.
+    /// </summary>
+    private void HandleImportCancelled()
+    {
+        _pendingImport = null;
+    }
+
+    private async Task CompleteImportAsync(CharacterExportDocument document, ImportConflictResolution resolution)
+    {
+        var imported = await Transfer.ImportAsync(document, resolution);
+        _pendingImport = null;
+
+        if (imported is null)
+        {
+            _importErrorMessage = "That file could not be imported. It may be corrupted or not a character export.";
+            return;
+        }
+
+        await RefreshListAsync();
+        await OnCharacterSelected.InvokeAsync(imported);
 
         _isOpen = false;
     }

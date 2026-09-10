@@ -17,6 +17,8 @@ public static class DependencyInjection
         services.AddScoped<ICharacterAutosaveService, CharacterAutosaveService>();
         services.AddScoped<ISheetSectionStateService, SheetSectionStateService>();
         services.AddScoped<ICharacterDuplicator, CharacterDuplicator>();
+        services.AddScoped<ICharacterTransferService, CharacterTransferService>();
+        services.AddScoped<IThemeService, ThemeService>();
         return services;
     }
 }
