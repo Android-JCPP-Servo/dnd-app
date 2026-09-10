@@ -33,6 +33,7 @@ public sealed class CharacterAutosaveService(ICharacterStore characterStore, ISt
         _pendingCancellation?.Cancel();
 
         var character = _pendingCharacter;
+        _pendingCharacter = null;
         if (character is not null)
         {
             await characterStore.SaveAsync(character, cancellationToken);
@@ -45,6 +46,11 @@ public sealed class CharacterAutosaveService(ICharacterStore characterStore, ISt
         {
             await Task.Delay(DebounceMilliseconds, token);
             await characterStore.SaveAsync(character, token);
+
+            if (ReferenceEquals(_pendingCharacter, character))
+            {
+                _pendingCharacter = null;
+            }
         }
         catch (OperationCanceledException)
         {

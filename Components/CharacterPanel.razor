@@ -37,7 +37,7 @@
         <ul class="dnd-panel-list">
             @foreach (var summary in _characters)
             {
-                <li class="dnd-panel-action-row">
+                <li class="dnd-panel-action-row" @key="summary.Id">
                     @if (_renamingId == summary.Id)
                     {
                         <input class="dnd-panel-item dnd-panel-action-rename-input"
@@ -234,6 +234,13 @@
 
         _renamingId = null;
 
+        var trimmedName = _renameValue.Trim();
+        if (trimmedName.Length == 0)
+        {
+            CancelRename();
+            return;
+        }
+
         await Autosave.FlushAsync();
 
         var sheet = await Store.GetAsync(id);
@@ -243,7 +250,7 @@
             return;
         }
 
-        sheet.DisplayName = _renameValue.Trim();
+        sheet.DisplayName = trimmedName;
         await Store.SaveAsync(sheet);
         await RefreshListAsync();
 
