@@ -4,9 +4,34 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#03173d" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)" />
     <title>DND</title>
     <base href="/" />
     <link rel="preload" id="webassembly" />
+    <script>
+        // Applies the theme before any stylesheet is parsed, so there is no light-mode flash
+        // while the Blazor WASM runtime downloads and boots. Deliberately reads localStorage
+        // (not IndexedDB, ticket 208): IndexedDB is always asynchronous and unreadable before
+        // first paint, so it cannot do this job. STORAGE_KEY must stay identical to the one in
+        // wwwroot/js/theme.js; a mismatch silently breaks persistence.
+        (function () {
+            var STORAGE_KEY = 'dnd-theme';
+            var theme = null;
+            try {
+                theme = localStorage.getItem(STORAGE_KEY);
+            } catch (e) {
+                // localStorage throws in some privacy modes; fall back to the OS preference below.
+            }
+            if (theme !== 'light' && theme !== 'dark') {
+                theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+                    ? 'dark'
+                    : 'light';
+            }
+            document.documentElement.dataset.theme = theme;
+            document.documentElement.dataset.bsTheme = theme;
+        })();
+    </script>
     <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/app.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
@@ -32,7 +57,12 @@
         <span class="dismiss">🗙</span>
     </div>
     <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
-    <script>navigator.serviceWorker.register('service-worker.js', { updateViaCache: 'none' });</script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js', { updateViaCache: 'none' })
+                .catch(error => console.error('Service worker registration failed:', error));
+        }
+    </script>
 </body>
 
 </html>

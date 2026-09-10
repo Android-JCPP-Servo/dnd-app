@@ -1,22 +1,25 @@
 {
-  "name": "DND",
-  "short_name": "DND",
+  "name": "D&D Character Sheet",
+  "short_name": "D&D Sheet",
   "id": "./",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#03173d",
+  "description": "An offline-capable character sheet for tracking your D&D characters at the table.",
   "prefer_related_applications": false,
   "icons": [
     {
       "src": "icon-512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any"
     },
     {
       "src": "icon-192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any"
     }
   ]
 }

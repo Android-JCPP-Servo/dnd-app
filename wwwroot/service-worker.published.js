@@ -25,6 +25,12 @@ async function onInstall(event) {
         .filter(asset => !offlineAssetsExclude.some(pattern => pattern.test(asset.url)))
         .map(asset => new Request(asset.url, { integrity: asset.hash, cache: 'no-cache' }));
     await caches.open(cacheName).then(cache => cache.addAll(assetsRequests));
+
+    // Activate the new worker immediately instead of waiting for all tabs to close.
+    // This can swap the active worker under an already-loaded page, but this app loads
+    // its entire WASM payload up front and stores all user data in IndexedDB (never in
+    // the SW cache), so no lazily-fetched or user-entered content is at risk.
+    self.skipWaiting();
 }
 
 async function onActivate(event) {
@@ -35,6 +41,10 @@ async function onActivate(event) {
     await Promise.all(cacheKeys
         .filter(key => key.startsWith(cacheNamePrefix) && key !== cacheName)
         .map(key => caches.delete(key)));
+
+    // Take control of any already-open clients right away so the new version is used
+    // on next navigation/fetch without requiring the user to close every tab.
+    await self.clients.claim();
 }
 
 async function onFetch(event) {
