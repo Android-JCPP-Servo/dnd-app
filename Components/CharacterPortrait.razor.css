@@ -52,7 +52,7 @@
     position: relative;
 }
 
-    .dnd-portrait-upload input[type="file"] {
+    .dnd-portrait-upload ::deep input[type="file"] {
         cursor: pointer;
         height: 100%;
         left: 0;
