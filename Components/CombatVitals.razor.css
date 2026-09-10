@@ -23,9 +23,11 @@
 }
 
 .dnd-combat-input {
-    border: 0.0625rem solid #d6d5d5;
+    background-color: var(--dnd-input-bg);
+    border: 0.0625rem solid var(--dnd-border);
     border-radius: 0.25rem;
     box-sizing: border-box;
+    color: var(--dnd-text);
     font-size: var(--dnd-control-font);
     min-height: var(--dnd-control-min-h);
     padding: 0.25rem 0.5rem;
@@ -54,9 +56,11 @@
 }
 
 .dnd-stepper-btn {
-    border: 0.0625rem solid #6b6b6b;
+    background-color: var(--dnd-control-bg);
+    border: 0.0625rem solid var(--dnd-border-strong);
     border-radius: 0.25rem;
     box-sizing: border-box;
+    color: var(--dnd-text);
     flex-shrink: 0;
     font-size: 1rem;
     line-height: 1;
@@ -65,7 +69,7 @@
 }
 
 .dnd-stepper-value {
-    border: 0.0625rem solid #d6d5d5;
+    border: 0.0625rem solid var(--dnd-border);
     border-radius: 0.25rem;
     box-sizing: border-box;
     flex-shrink: 0;
@@ -92,9 +96,11 @@
 }
 
 .dnd-combat-quickentry-btn {
-    border: 0.0625rem solid #6b6b6b;
+    background-color: var(--dnd-control-bg);
+    border: 0.0625rem solid var(--dnd-border-strong);
     border-radius: 0.25rem;
     box-sizing: border-box;
+    color: var(--dnd-text);
     flex-shrink: 0;
     font-size: 0.95rem;
     min-height: var(--dnd-control-min-h);
@@ -103,11 +109,11 @@
 }
 
 .dnd-combat-damage {
-    background-color: #f8d7da;
+    background-color: var(--dnd-damage-bg);
 }
 
 .dnd-combat-heal {
-    background-color: #d4edda;
+    background-color: var(--dnd-heal-bg);
 }
 
 .dnd-combat-hitdicetype-field {
@@ -134,9 +140,11 @@
 
 .dnd-combat-longrest-btn {
     align-self: flex-start;
-    border: 0.0625rem solid #6b6b6b;
+    background-color: var(--dnd-control-bg);
+    border: 0.0625rem solid var(--dnd-border-strong);
     border-radius: 0.25rem;
     box-sizing: border-box;
+    color: var(--dnd-text);
     min-height: var(--dnd-control-min-h);
     min-width: var(--dnd-control-min-w);
     padding: 0 0.75rem;
@@ -161,8 +169,8 @@
 }
 
 .dnd-death-pip {
-    background-color: #ffffff;
-    border: 0.0625rem solid #6b6b6b;
+    background-color: var(--dnd-control-bg);
+    border: 0.0625rem solid var(--dnd-border-strong);
     border-radius: 50%;
     box-sizing: border-box;
     flex-shrink: 0;
@@ -174,13 +182,13 @@
 }
 
 .dnd-death-pip-success.is-marked {
-    background-color: #2e7d32;
-    border-color: #2e7d32;
+    background-color: var(--dnd-death-pass);
+    border-color: var(--dnd-death-pass);
 }
 
 .dnd-death-pip-failure.is-marked {
-    background-color: #b71c1c;
-    border-color: #b71c1c;
+    background-color: var(--dnd-death-fail);
+    border-color: var(--dnd-death-fail);
 }
 
 @media (min-width: 768px) {

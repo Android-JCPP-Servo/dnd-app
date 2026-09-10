@@ -1,10 +1,15 @@
+/* NavMenu is not rendered anywhere in this app (MainLayout.razor renders only <StorageWarning />
+   and @Body; no other component references <NavMenu>). Verified dead template scaffolding as of
+   ticket 208 - the four literals with an equivalent token above are tokenized for consistency;
+   the translucent white overlays (no existing equivalent token) and the data-URI icon fills are
+   left as-is since converting them would be wasted risk on code that never paints. */
 .navbar-toggler {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
 .top-row {
     min-height: 3.5rem;
-    background-color: rgba(0,0,0,0.4);
+    background-color: var(--dnd-scrim-40);
 }
 
 .navbar-brand {
@@ -47,7 +52,7 @@
     }
 
     .nav-item ::deep a {
-        color: #d7d7d7;
+        color: var(--dnd-border);
         border-radius: 4px;
         height: 3rem;
         display: flex;
@@ -57,12 +62,12 @@
 
 .nav-item ::deep a.active {
     background-color: rgba(255,255,255,0.37);
-    color: white;
+    color: var(--dnd-on-chrome);
 }
 
 .nav-item ::deep a:hover {
     background-color: rgba(255,255,255,0.1);
-    color: white;
+    color: var(--dnd-on-chrome);
 }
 
 @media (min-width: 641px) {

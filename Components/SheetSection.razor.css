@@ -1,13 +1,13 @@
 .dnd-sheet-section {
-    background-color: #ffffff;
-    border: 0.0625rem solid #d6d5d5;
+    background-color: var(--dnd-surface);
+    border: 0.0625rem solid var(--dnd-border);
     border-radius: 0.375rem;
     overflow: hidden;
 }
 
 .dnd-sheet-section-header {
     align-items: center;
-    background-color: #f7f7f7;
+    background-color: var(--dnd-surface-subtle);
     border: 0;
     cursor: pointer;
     display: flex;

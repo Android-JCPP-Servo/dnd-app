@@ -1,0 +1,16 @@
+/* Mounted in the always-present panel header (see CharacterPanel.razor), a chrome region, so it
+   uses the chrome border token rather than the sheet's default border. */
+.dnd-theme-toggle {
+    align-items: center;
+    background: transparent;
+    border: 0.0625rem solid var(--dnd-chrome-border);
+    border-radius: 0.25rem;
+    color: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 1rem;
+    justify-content: center;
+    line-height: 1;
+    min-height: var(--dnd-control-min-h);
+    min-width: var(--dnd-control-min-w);
+}

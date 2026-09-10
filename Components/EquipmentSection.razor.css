@@ -25,9 +25,11 @@
 }
 
 .dnd-coin-btn {
-    border: 0.0625rem solid #6b6b6b;
+    background-color: var(--dnd-control-bg);
+    border: 0.0625rem solid var(--dnd-border-strong);
     border-radius: 0.25rem;
     box-sizing: border-box;
+    color: var(--dnd-text);
     flex-shrink: 0;
     font-size: 1rem;
     line-height: 1;
@@ -36,7 +38,7 @@
 }
 
 .dnd-coin-value {
-    border: 0.0625rem solid #d6d5d5;
+    border: 0.0625rem solid var(--dnd-border);
     border-radius: 0.25rem;
     box-sizing: border-box;
     flex-shrink: 0;
@@ -47,9 +49,11 @@
 }
 
 .dnd-equipment-input {
-    border: 0.0625rem solid #d6d5d5;
+    background-color: var(--dnd-input-bg);
+    border: 0.0625rem solid var(--dnd-border);
     border-radius: 0.25rem;
     box-sizing: border-box;
+    color: var(--dnd-text);
     font-size: var(--dnd-control-font);
     min-height: var(--dnd-control-min-h);
     padding: 0.25rem 0.5rem;

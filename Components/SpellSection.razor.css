@@ -23,9 +23,11 @@
 }
 
 .dnd-spell-input {
-    border: 0.0625rem solid #d6d5d5;
+    background-color: var(--dnd-input-bg);
+    border: 0.0625rem solid var(--dnd-border);
     border-radius: 0.25rem;
     box-sizing: border-box;
+    color: var(--dnd-text);
     font-family: inherit;
     font-size: var(--dnd-control-font);
     min-height: var(--dnd-control-min-h);
@@ -34,7 +36,7 @@
 }
 
 .dnd-spell-tile {
-    border: 0.0625rem solid #d6d5d5;
+    border: 0.0625rem solid var(--dnd-border);
     border-radius: 0.25rem;
     display: flex;
     flex-direction: column;
@@ -49,14 +51,18 @@
 }
 
 .dnd-spell-name-input {
+    background-color: var(--dnd-input-bg);
+    color: var(--dnd-text);
     flex: 1 1 auto;
     font-weight: 600;
 }
 
 .dnd-spell-toggle {
-    border: 0.0625rem solid #6b6b6b;
+    background-color: var(--dnd-control-bg);
+    border: 0.0625rem solid var(--dnd-border-strong);
     border-radius: 0.25rem;
     box-sizing: border-box;
+    color: var(--dnd-text);
     flex-shrink: 0;
     font-size: var(--dnd-control-font);
     min-height: var(--dnd-control-min-h);

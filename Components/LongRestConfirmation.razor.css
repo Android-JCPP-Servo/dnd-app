@@ -1,7 +1,7 @@
 /* Backdrop z-index stays below 1000 so the storage-failure banner and #blazor-error-ui remain visible above it. */
 .dnd-confirm-backdrop {
     align-items: center;
-    background: rgba(0, 0, 0, 0.6);
+    background: var(--dnd-scrim-60);
     bottom: 0;
     display: flex;
     justify-content: center;
@@ -14,12 +14,12 @@
 }
 
 .dnd-confirm-dialog {
-    background: #1f1f1f;
-    border: 0.0625rem solid #4a4a4a;
+    background: var(--dnd-chrome-bg);
+    border: 0.0625rem solid var(--dnd-chrome-border);
     border-radius: 0.25rem;
-    box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0.25rem 1rem var(--dnd-scrim-50);
     box-sizing: border-box;
-    color: #ffffff;
+    color: var(--dnd-on-chrome);
     max-width: 24rem;
     padding: 1.25rem;
     width: 100%;
@@ -50,12 +50,12 @@
 
 .dnd-confirm-cancel {
     background: transparent;
-    border: 0.0625rem solid #4a4a4a;
+    border: 0.0625rem solid var(--dnd-chrome-border);
     color: inherit;
 }
 
 .dnd-confirm-delete {
-    background: #b32121;
-    border: 0.0625rem solid #b32121;
-    color: #ffffff;
+    background: var(--dnd-danger);
+    border: 0.0625rem solid var(--dnd-danger);
+    color: var(--dnd-on-chrome);
 }

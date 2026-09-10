@@ -35,9 +35,11 @@
 }
 
 .dnd-slot-total-input {
-    border: 0.0625rem solid #d6d5d5;
+    background-color: var(--dnd-input-bg);
+    border: 0.0625rem solid var(--dnd-border);
     border-radius: 0.25rem;
     box-sizing: border-box;
+    color: var(--dnd-text);
     font-size: var(--dnd-control-font);
     min-height: var(--dnd-control-min-h);
     min-width: var(--dnd-control-min-w);
@@ -52,8 +54,8 @@
 }
 
 .dnd-slot-pip {
-    background-color: #ffffff;
-    border: 0.0625rem solid #6b6b6b;
+    background-color: var(--dnd-control-bg);
+    border: 0.0625rem solid var(--dnd-border-strong);
     border-radius: 50%;
     box-sizing: border-box;
     flex-shrink: 0;
@@ -65,8 +67,8 @@
 }
 
 .dnd-slot-pip.is-marked {
-    background-color: #6a1b9a;
-    border-color: #6a1b9a;
+    background-color: var(--dnd-slot-marked);
+    border-color: var(--dnd-slot-marked);
 }
 
 .dnd-slot-stepper {
@@ -77,9 +79,11 @@
 }
 
 .dnd-slot-stepper-btn {
-    border: 0.0625rem solid #6b6b6b;
+    background-color: var(--dnd-control-bg);
+    border: 0.0625rem solid var(--dnd-border-strong);
     border-radius: 0.25rem;
     box-sizing: border-box;
+    color: var(--dnd-text);
     flex-shrink: 0;
     font-size: 1rem;
     line-height: 1;

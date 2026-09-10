@@ -23,9 +23,11 @@
 }
 
 .dnd-details-input {
-    border: 0.0625rem solid #d6d5d5;
+    background-color: var(--dnd-input-bg);
+    border: 0.0625rem solid var(--dnd-border);
     border-radius: 0.25rem;
     box-sizing: border-box;
+    color: var(--dnd-text);
     font-size: var(--dnd-control-font);
     min-height: var(--dnd-control-min-h);
     padding: var(--dnd-control-pad-y) var(--dnd-control-pad-x);
@@ -37,9 +39,11 @@
 }
 
 .dnd-details-textarea {
-    border: 0.0625rem solid #d6d5d5;
+    background-color: var(--dnd-input-bg);
+    border: 0.0625rem solid var(--dnd-border);
     border-radius: 0.25rem;
     box-sizing: border-box;
+    color: var(--dnd-text);
     font-family: inherit;
     font-size: var(--dnd-control-font);
     min-height: 6rem;

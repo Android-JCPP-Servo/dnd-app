@@ -11,6 +11,64 @@
     --dnd-control-pad-x: 0.5rem;
     --dnd-control-font: 0.875rem;
     --dnd-label-font: 0.7rem;
+
+    /* Color tokens (ticket 208). Light-theme values below are byte-for-byte the same literals
+       the app already used before this ticket, so introducing the token layer causes no visual
+       change on its own. The dark overrides live in the :root[data-theme="dark"] block after the
+       coarse-pointer block. color-scheme is load-bearing: it drives UA-default form-control,
+       scrollbar, and input-background rendering, which the un-backgrounded inputs rely on. */
+    color-scheme: light;
+
+    --dnd-page-bg: #ffffff;
+    --dnd-surface: #ffffff;
+    --dnd-surface-subtle: #f7f7f7;
+    --dnd-raised: #f7f7f7;
+    --dnd-text: #000000;
+    --dnd-text-muted: #4a4a4a;
+    --dnd-border: #d6d5d5;
+    --dnd-border-strong: #6b6b6b;
+
+    /* Chrome tokens: the four regions (CharacterPanel, CharacterPortrait viewer,
+       DeleteCharacterConfirmation, LongRestConfirmation, ImportConflictPrompt) that are already
+       dark today, by design, in light mode. Kept intentionally separate from --dnd-surface so
+       flipping the sheet theme does not turn these regions white. */
+    --dnd-chrome-bg: #1f1f1f;
+    --dnd-chrome-raised: #2b2b2b;
+    --dnd-chrome-border: #4a4a4a;
+    --dnd-on-chrome: #ffffff;
+
+    --dnd-danger: #b32121;
+
+    --dnd-scrim-40: rgba(0, 0, 0, 0.4);
+    --dnd-scrim-50: rgba(0, 0, 0, 0.5);
+    --dnd-scrim-60: rgba(0, 0, 0, 0.6);
+    --dnd-scrim-85: rgba(0, 0, 0, 0.85);
+
+    --dnd-focus-ring: #258cfb;
+    --dnd-focus-halo: #ffffff;
+
+    --dnd-input-bg: #ffffff;
+    --dnd-control-bg: #ffffff;
+
+    --dnd-link: #0071c1;
+    --dnd-btn-primary-text: #fff;
+    --dnd-btn-primary-bg: #1b6ec2;
+    --dnd-btn-primary-border: #1861ac;
+    --dnd-valid: #26b050;
+    --dnd-invalid: red;
+    --dnd-spinner-track: #e0e0e0;
+    --dnd-spinner-progress: #1b6ec2;
+    --dnd-code: #c02d76;
+
+    /* Accent pairs */
+    --dnd-inspiration-bg: #ffd766;
+    --dnd-inspiration-border: #c9a227;
+    --dnd-death-pass: #2e7d32;
+    --dnd-death-fail: #b71c1c;
+    --dnd-damage-bg: #f8d7da;
+    --dnd-heal-bg: #d4edda;
+    --dnd-slot-marked: #6a1b9a;
+    --dnd-prof-filled: #3b3b3b;
 }
 
 /* Accessibility: restore full 44px targets wherever the primary pointer is coarse (touch).
@@ -25,8 +83,99 @@
     }
 }
 
+/* Dark theme (ticket 208). The [data-theme="dark"] attribute is the authority - it wins over the
+   OS preference below because an explicit user toggle must override it. The pre-boot inline
+   script in wwwroot/index.html sets this attribute before first paint (from localStorage, falling
+   back to the OS preference) so there is no light-mode flash. */
+:root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --dnd-page-bg: #121212;
+    --dnd-surface: #1e1e1e;
+    --dnd-surface-subtle: #262626;
+    --dnd-raised: #262626;
+    --dnd-text: #e8e8e8;
+    --dnd-text-muted: #b0b0b0;
+    --dnd-border: #6b6b6b;
+    --dnd-border-strong: #8a8a8a;
+
+    --dnd-chrome-bg: #141414;
+    --dnd-chrome-raised: #232323;
+    --dnd-chrome-border: #5a5a5a;
+    --dnd-on-chrome: #ffffff;
+
+    --dnd-danger: #d9534f;
+
+    --dnd-focus-ring: #4da3ff;
+    --dnd-focus-halo: #1e1e1e;
+
+    --dnd-input-bg: #2a2a2a;
+    --dnd-control-bg: #2a2a2a;
+
+    --dnd-link: #4fa8ff;
+    --dnd-btn-primary-text: #fff;
+    --dnd-btn-primary-bg: #2f86dd;
+    --dnd-btn-primary-border: #4da3ff;
+    --dnd-valid: #3ecf5d;
+    --dnd-invalid: #ff6b6b;
+    --dnd-spinner-track: #3a3a3a;
+    --dnd-spinner-progress: #4fa8ff;
+    --dnd-code: #ff79b0;
+
+    --dnd-damage-bg: #4a1f24;
+    --dnd-heal-bg: #1f3d24;
+    --dnd-prof-filled: #e8e8e8;
+}
+
+/* First-run OS default. Only takes effect when JS has not set an explicit [data-theme] (e.g. the
+   pre-boot script did not run yet, or is disabled); ":not([data-theme=\"light\"])" keeps it from
+   ever overriding an explicit light choice. */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        color-scheme: dark;
+
+        --dnd-page-bg: #121212;
+        --dnd-surface: #1e1e1e;
+        --dnd-surface-subtle: #262626;
+        --dnd-raised: #262626;
+        --dnd-text: #e8e8e8;
+        --dnd-text-muted: #b0b0b0;
+        --dnd-border: #6b6b6b;
+        --dnd-border-strong: #8a8a8a;
+
+        --dnd-chrome-bg: #141414;
+        --dnd-chrome-raised: #232323;
+        --dnd-chrome-border: #5a5a5a;
+        --dnd-on-chrome: #ffffff;
+
+        --dnd-danger: #d9534f;
+
+        --dnd-focus-ring: #4da3ff;
+        --dnd-focus-halo: #1e1e1e;
+
+        --dnd-input-bg: #2a2a2a;
+        --dnd-control-bg: #2a2a2a;
+
+        --dnd-link: #4fa8ff;
+        --dnd-btn-primary-text: #fff;
+        --dnd-btn-primary-bg: #2f86dd;
+        --dnd-btn-primary-border: #4da3ff;
+        --dnd-valid: #3ecf5d;
+        --dnd-invalid: #ff6b6b;
+        --dnd-spinner-track: #3a3a3a;
+        --dnd-spinner-progress: #4fa8ff;
+        --dnd-code: #ff79b0;
+
+        --dnd-damage-bg: #4a1f24;
+        --dnd-heal-bg: #1f3d24;
+        --dnd-prof-filled: #e8e8e8;
+    }
+}
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: var(--dnd-page-bg);
+    color: var(--dnd-text);
 }
 
 h1:focus {
@@ -34,29 +183,29 @@ h1:focus {
 }
 
 a, .btn-link {
-    color: #0071c1;
+    color: var(--dnd-link);
 }
 
 .btn-primary {
-    color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
+    color: var(--dnd-btn-primary-text);
+    background-color: var(--dnd-btn-primary-bg);
+    border-color: var(--dnd-btn-primary-border);
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+  box-shadow: 0 0 0 0.1rem var(--dnd-focus-halo), 0 0 0 0.25rem var(--dnd-focus-ring);
 }
 
 .valid.modified:not([type=checkbox]) {
-    outline: 1px solid #26b050;
+    outline: 1px solid var(--dnd-valid);
 }
 
 .invalid {
-    outline: 1px solid red;
+    outline: 1px solid var(--dnd-invalid);
 }
 
 .validation-message {
-    color: red;
+    color: var(--dnd-invalid);
 }
 
 #blazor-error-ui {
@@ -80,8 +229,10 @@ a, .btn-link {
         top: 0.5rem;
     }
 
+/* The base64 SVG's internal #FFE500 fill is inside the data URI and unreachable by var(); only
+   the background fallback color after the comma is tokenized here (ticket 208). */
 .blazor-error-boundary {
-    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNDkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIG92ZXJmbG93PSJoaWRkZW4iPjxkZWZzPjxjbGlwUGF0aCBpZD0iY2xpcDAiPjxyZWN0IHg9IjIzNSIgeT0iNTEiIHdpZHRoPSI1NiIgaGVpZ2h0PSI0OSIvPjwvY2xpcFBhdGg+PC9kZWZzPjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMCkiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0yMzUgLTUxKSI+PHBhdGggZD0iTTI2My41MDYgNTFDMjY0LjcxNyA1MSAyNjUuODEzIDUxLjQ4MzcgMjY2LjYwNiA1Mi4yNjU4TDI2Ny4wNTIgNTIuNzk4NyAyNjcuNTM5IDUzLjYyODMgMjkwLjE4NSA5Mi4xODMxIDI5MC41NDUgOTIuNzk1IDI5MC42NTYgOTIuOTk2QzI5MC44NzcgOTMuNTEzIDI5MSA5NC4wODE1IDI5MSA5NC42NzgyIDI5MSA5Ny4wNjUxIDI4OS4wMzggOTkgMjg2LjYxNyA5OUwyNDAuMzgzIDk5QzIzNy45NjMgOTkgMjM2IDk3LjA2NTEgMjM2IDk0LjY3ODIgMjM2IDk0LjM3OTkgMjM2LjAzMSA5NC4wODg2IDIzNi4wODkgOTMuODA3MkwyMzYuMzM4IDkzLjAxNjIgMjM2Ljg1OCA5Mi4xMzE0IDI1OS40NzMgNTMuNjI5NCAyNTkuOTYxIDUyLjc5ODUgMjYwLjQwNyA1Mi4yNjU4QzI2MS4yIDUxLjQ4MzcgMjYyLjI5NiA1MSAyNjMuNTA2IDUxWk0yNjMuNTg2IDY2LjAxODNDMjYwLjczNyA2Ni4wMTgzIDI1OS4zMTMgNjcuMTI0NSAyNTkuMzEzIDY5LjMzNyAyNTkuMzEzIDY5LjYxMDIgMjU5LjMzMiA2OS44NjA4IDI1OS4zNzEgNzAuMDg4N0wyNjEuNzk1IDg0LjAxNjEgMjY1LjM4IDg0LjAxNjEgMjY3LjgyMSA2OS43NDc1QzI2Ny44NiA2OS43MzA5IDI2Ny44NzkgNjkuNTg3NyAyNjcuODc5IDY5LjMxNzkgMjY3Ljg3OSA2Ny4xMTgyIDI2Ni40NDggNjYuMDE4MyAyNjMuNTg2IDY2LjAxODNaTTI2My41NzYgODYuMDU0N0MyNjEuMDQ5IDg2LjA1NDcgMjU5Ljc4NiA4Ny4zMDA1IDI1OS43ODYgODkuNzkyMSAyNTkuNzg2IDkyLjI4MzcgMjYxLjA0OSA5My41Mjk1IDI2My41NzYgOTMuNTI5NSAyNjYuMTE2IDkzLjUyOTUgMjY3LjM4NyA5Mi4yODM3IDI2Ny4zODcgODkuNzkyMSAyNjcuMzg3IDg3LjMwMDUgMjY2LjExNiA4Ni4wNTQ3IDI2My41NzYgODYuMDU0N1oiIGZpbGw9IiNGRkU1MDAiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvZz48L3N2Zz4=) no-repeat 1rem/1.8rem, #b32121;
+    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNDkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIG92ZXJmbG93PSJoaWRkZW4iPjxkZWZzPjxjbGlwUGF0aCBpZD0iY2xpcDAiPjxyZWN0IHg9IjIzNSIgeT0iNTEiIHdpZHRoPSI1NiIgaGVpZ2h0PSI0OSIvPjwvY2xpcFBhdGg+PC9kZWZzPjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMCkiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0yMzUgLTUxKSI+PHBhdGggZD0iTTI2My41MDYgNTFDMjY0LjcxNyA1MSAyNjUuODEzIDUxLjQ4MzcgMjY2LjYwNiA1Mi4yNjU4TDI2Ny4wNTIgNTIuNzk4NyAyNjcuNTM5IDUzLjYyODMgMjkwLjE4NSA5Mi4xODMxIDI5MC41NDUgOTIuNzk1IDI5MC42NTYgOTIuOTk2QzI5MC44NzcgOTMuNTEzIDI5MSA5NC4wODE1IDI5MSA5NC42NzgyIDI5MSA5Ny4wNjUxIDI4OS4wMzggOTkgMjg2LjYxNyA5OUwyNDAuMzgzIDk5QzIzNy45NjMgOTkgMjM2IDk3LjA2NTEgMjM2IDk0LjY3ODIgMjM2IDk0LjM3OTkgMjM2LjAzMSA5NC4wODg2IDIzNi4wODkgOTMuODA3MkwyMzYuMzM4IDkzLjAxNjIgMjM2Ljg1OCA5Mi4xMzE0IDI1OS40NzMgNTMuNjI5NCAyNTkuOTYxIDUyLjc5ODUgMjYwLjQwNyA1Mi4yNjU4QzI2MS4yIDUxLjQ4MzcgMjYyLjI5NiA1MSAyNjMuNTA2IDUxWk0yNjMuNTg2IDY2LjAxODNDMjYwLjczNyA2Ni4wMTgzIDI1OS4zMTMgNjcuMTI0NSAyNTkuMzEzIDY5LjMzNyAyNTkuMzEzIDY5LjYxMDIgMjU5LjMzMiA2OS44NjA4IDI1OS4zNzEgNzAuMDg4N0wyNjEuNzk1IDg0LjAxNjEgMjY1LjM4IDg0LjAxNjEgMjY3LjgyMSA2OS43NDc1QzI2Ny44NiA2OS43MzA5IDI2Ny44NzkgNjkuNTg3NyAyNjcuODc5IDY5LjMxNzkgMjY3Ljg3OSA2Ny4xMTgyIDI2Ni40NDggNjYuMDE4MyAyNjMuNTg2IDY2LjAxODNaTTI2My41NzYgODYuMDU0N0MyNjEuMDQ5IDg2LjA1NDcgMjU5Ljc4NiA4Ny4zMDA1IDI1OS43ODYgODkuNzkyMSAyNTkuNzg2IDkyLjI4MzcgMjYxLjA0OSA5My41Mjk1IDI2My41NzYgOTMuNTI5NSAyNjYuMTE2IDkzLjUyOTUgMjY3LjM4NyA5Mi4yODM3IDI2Ny4zODcgODkuNzkyMSAyNjcuMzg3IDg3LjMwMDUgMjY2LjExNiA4Ni4wNTQ3IDI2My41NzYgODYuMDU0N1oiIGZpbGw9IiNGRkU1MDAiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvZz48L3N2Zz4=) no-repeat 1rem/1.8rem, var(--dnd-danger);
     padding: 1rem 1rem 1rem 3.7rem;
     color: white;
 }
@@ -101,14 +252,14 @@ a, .btn-link {
 
     .loading-progress circle {
         fill: none;
-        stroke: #e0e0e0;
+        stroke: var(--dnd-spinner-track);
         stroke-width: 0.6rem;
         transform-origin: 50% 50%;
         transform: rotate(-90deg);
     }
 
         .loading-progress circle:last-child {
-            stroke: #1b6ec2;
+            stroke: var(--dnd-spinner-progress);
             stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8), 500%;
             transition: stroke-dasharray 0.05s ease-in-out;
         }
@@ -125,7 +276,7 @@ a, .btn-link {
     }
 
 code {
-    color: #c02d76;
+    color: var(--dnd-code);
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {

@@ -17,9 +17,11 @@
 
 .dnd-ally-input,
 .dnd-ally-textarea {
-    border: 0.0625rem solid #d6d5d5;
+    background-color: var(--dnd-input-bg);
+    border: 0.0625rem solid var(--dnd-border);
     border-radius: 0.25rem;
     box-sizing: border-box;
+    color: var(--dnd-text);
     font-size: var(--dnd-control-font);
     padding: var(--dnd-control-pad-y) var(--dnd-control-pad-x);
     width: 100%;

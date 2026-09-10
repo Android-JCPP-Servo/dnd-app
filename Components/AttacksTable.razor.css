@@ -22,9 +22,11 @@
 }
 
 .dnd-attacks-input {
-    border: 0.0625rem solid #d6d5d5;
+    background-color: var(--dnd-input-bg);
+    border: 0.0625rem solid var(--dnd-border);
     border-radius: 0.25rem;
     box-sizing: border-box;
+    color: var(--dnd-text);
     font-size: var(--dnd-control-font);
     min-height: var(--dnd-control-min-h);
     padding: 0.25rem 0.4rem;

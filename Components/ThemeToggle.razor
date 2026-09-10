@@ -1,0 +1,43 @@
+@implements IDisposable
+
+<button type="button"
+        class="dnd-theme-toggle"
+        aria-pressed="@(_isDark ? "true" : "false")"
+        aria-label="@(_isDark ? "Switch to light theme" : "Switch to dark theme")"
+        @onclick="ToggleAsync">
+    <span aria-hidden="true">@(_isDark ? "☀" : "🌙")</span>
+</button>
+
+@code {
+    [Inject] private IThemeService ThemeService { get; set; } = default!;
+
+    private bool _isDark => ThemeService.CurrentTheme == "dark";
+
+    /// <summary>
+    /// Subscribes to theme-change notifications, then reconciles state with whatever the
+    /// pre-boot inline script in wwwroot/index.html already applied to the document.
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+        ThemeService.ThemeChanged += HandleThemeChanged;
+        await ThemeService.InitializeAsync();
+    }
+
+    private void HandleThemeChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ToggleAsync()
+    {
+        await ThemeService.SetThemeAsync(_isDark ? "light" : "dark");
+    }
+
+    /// <summary>
+    /// Unsubscribes from the scoped service's event to avoid leaking this component instance.
+    /// </summary>
+    public void Dispose()
+    {
+        ThemeService.ThemeChanged -= HandleThemeChanged;
+    }
+}

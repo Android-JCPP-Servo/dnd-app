@@ -12,8 +12,8 @@
 }
 
 .dnd-ability-inspiration {
-    background-color: #f7f7f7;
-    border: 0.0625rem solid #d6d5d5;
+    background-color: var(--dnd-surface-subtle);
+    border: 0.0625rem solid var(--dnd-border);
     border-radius: 0.375rem;
     cursor: pointer;
     font-size: var(--dnd-control-font);
@@ -23,8 +23,8 @@
 }
 
 .dnd-ability-inspiration.is-on {
-    background-color: #ffd766;
-    border-color: #c9a227;
+    background-color: var(--dnd-inspiration-bg);
+    border-color: var(--dnd-inspiration-border);
 }
 
 .dnd-ability-rows {
@@ -35,8 +35,8 @@
 
 .dnd-ability-row {
     align-items: flex-end;
-    background-color: #ffffff;
-    border: 0.0625rem solid #d6d5d5;
+    background-color: var(--dnd-surface);
+    border: 0.0625rem solid var(--dnd-border);
     border-radius: 0.375rem;
     display: flex;
     flex-wrap: wrap;
@@ -63,9 +63,11 @@
 }
 
 .dnd-ability-input {
-    border: 0.0625rem solid #d6d5d5;
+    background-color: var(--dnd-input-bg);
+    border: 0.0625rem solid var(--dnd-border);
     border-radius: 0.375rem;
     box-sizing: border-box;
+    color: var(--dnd-text);
     font-size: var(--dnd-control-font);
     min-height: var(--dnd-control-min-h);
     padding: var(--dnd-control-pad-y) var(--dnd-control-pad-x);
